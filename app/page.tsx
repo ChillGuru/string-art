@@ -1,5 +1,14 @@
 import Image from 'next/image'
-import styles from './page.module.css'
+import styles from '/styles/page.module.css'
+import { GetServerSideProps } from 'next';
+
+export const getServerSideProps: GetServerSideProps = async () => ({
+  redirect: {
+    destination: './login',
+    permanent: true,
+  },
+});
+
 
 export default function Home() {
   return (
