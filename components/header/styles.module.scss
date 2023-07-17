@@ -1,0 +1,13 @@
+@import '/styles/fonts/fonts.scss';
+@import '/styles/variables.scss';
+
+.container {
+    @media (max-width: 768px) {
+        font-size: 40px;
+    }
+
+    padding: 30px 0 0 15px;
+    font-family: "Rozovii Chulok";
+    color: $gray-font-color;
+    font-size: 60px;
+}
