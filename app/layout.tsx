@@ -1,6 +1,6 @@
-import Header from '@/components/header'
-import '/styles/globals.scss'
-import Footer from '@/components/footer'
+import Header from '@/components/header';
+import '../styles/globals.scss';
+import Footer from '@/components/footer';
 
 export const metadata = {
   title: 'Web-generator',
@@ -15,9 +15,11 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body>
-        <Header />
-        <main>{children}</main> 
-        <Footer />
+        <div className="container">
+          <Header />
+          {children} 
+          <Footer />
+        </div>
       </body>
     </html>
   )
