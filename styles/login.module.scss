@@ -1,0 +1,41 @@
+@import '/styles/variables.scss';
+
+.main {
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    @media (max-width: 1200px) {
+        font-size: 26px;
+    }
+
+    @media (max-width: 992px) {
+        font-size: 20px;
+    }
+
+    @media (max-width: 768px) {
+        font-size: 20px;
+        text-align: left;
+    }
+
+    font-family: Raleway;
+    font-size: 30px;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-align: center;
+    color: $blue-font-color;
+    padding-left: 10px;
+}
+
+.img {
+    @media (max-width: 992px) {
+        height: 250px;
+        width: 250px;
+    }
+
+    align-self: center;
+    margin-top: 40px;
+    height: 300px;
+    width: 300px;
+}
