@@ -12,9 +12,6 @@ const Test: React.FC = () => {
 
   async function getToken(code: string): Promise<string> {
     const response = await axios.post('https://kaleidoscope-backend.onrender.com/login', {
-      headers: {
-        
-      },
       code
     });
 
