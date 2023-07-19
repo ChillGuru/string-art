@@ -1,11 +1,7 @@
-
 import Image from 'next/image'
 import styles from '/styles/login.module.scss'
 import LoginImage from '../public/string-art-circle.svg';
-import LoginInput from '@/components/loginInput';
-
-
-
+import LoginForm from '@/components/UI/LoginForm';
 
 export default async function Home() {
   return (
@@ -14,7 +10,7 @@ export default async function Home() {
         СОЗДАЙ <br />СВОЮ КАРТИНУ НИТЯМИ <br />ИЗ ЛЮБОЙ ФОТОГРАФИИ
       </h1>
       <Image src={LoginImage} alt="String Art" className={styles.img}/>
-      <LoginInput />
+      <LoginForm />
     </main>
   )
 }
