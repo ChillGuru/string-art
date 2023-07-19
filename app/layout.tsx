@@ -1,6 +1,6 @@
-import Header from '@/components/Header';
+import Header from '../components/Header';
 import '../styles/globals.scss';
-import Footer from '@/components/Footer';
+import Footer from '../components/Footer';
 
 export const metadata = {
   title: 'Web-generator',

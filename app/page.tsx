@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import styles from '/styles/login.module.scss'
 import LoginImage from '../public/string-art-circle.svg';
-import LoginForm from '@/components/UI/LoginForm';
+import LoginForm from '../components/UI/LoginForm';
 
 export default async function Home() {
   return (
