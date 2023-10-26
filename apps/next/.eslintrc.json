@@ -14,19 +14,15 @@
     "plugin:react/jsx-runtime",
     "plugin:import/recommended",
     "airbnb",
-    "next/core-web-vitals"
-    // "plugin:prettier/recommended"
+    "next/core-web-vitals",
+    "plugin:prettier/recommended"
   ],
   "globals": {
     "JSX": true,
     "React": true
   },
   "parser": "@typescript-eslint/parser",
-  "plugins": [
-    "react",
-    "@typescript-eslint"
-    // "prettier"
-  ],
+  "plugins": ["react", "@typescript-eslint", "prettier"],
   "rules": {
     "@next/next/no-img-element": "off",
     "@typescript-eslint/ban-ts-comment": "off",

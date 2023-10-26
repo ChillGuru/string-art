@@ -5,8 +5,6 @@ import { useState } from 'react';
 
 import styles from './styles.module.scss';
 
-import { getToken } from '@/app/api/auth';
-
 const LoginForm: React.FC = () => {
   const [code, setCode] = useState('');
   const [token, setToken] = useState('');
@@ -29,7 +27,7 @@ const LoginForm: React.FC = () => {
   };
 
   const handleLogin = async () => {
-    if (code.length == requiredCodeLength) {
+    if (code.length === requiredCodeLength) {
       try {
         const newToken = await getToken(code);
         setToken(newToken);
@@ -52,9 +50,10 @@ const LoginForm: React.FC = () => {
           className={error ? styles.formInputError : styles.formInput}
         />
         <button
+          type='submit'
           onClick={handleLogin}
           className={
-            code.length == requiredCodeLength
+            code.length === requiredCodeLength
               ? styles.activeSubmitButton
               : styles.submitButton
           }
