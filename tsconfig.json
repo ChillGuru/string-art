@@ -1,4 +1,4 @@
 {
   "extends": "tsconfig/base.json",
-  "exclude": ["android"]
+  "compilerOptions": { "outDir": "android/app/build" } //wtf
 }

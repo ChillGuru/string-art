@@ -1,10 +1,11 @@
-import Header from '../components/Header';
-import '../styles/globals.scss';
-import Footer from '../components/Footer';
+import Footer from '@/components/Footer';
+
+import '@/styles/globals.scss';
+import { MainHeader } from 'ui';
 
 export const metadata = {
-  title: 'Web-generator',
-  description: 'String art application',
+  title: 'String Art',
+  description: '',
 };
 
 export default function RootLayout({
@@ -13,10 +14,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ru">
+    <html lang='ru'>
       <body>
-        <div className="container">
-          <Header />
+        <div className='container'>
+          <MainHeader />
           {children}
           <Footer />
         </div>

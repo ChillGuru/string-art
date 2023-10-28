@@ -1,8 +1,11 @@
 {
+  "name": "thread-art",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "start": "turbo run start",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
@@ -12,6 +15,5 @@
     "tsconfig": "workspace:*",
     "turbo": "latest"
   },
-  "packageManager": "pnpm@8.6.10",
-  "name": "thread-art"
+  "packageManager": "pnpm@8.6.10"
 }
