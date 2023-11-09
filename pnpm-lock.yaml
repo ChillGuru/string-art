@@ -47,6 +47,12 @@ importers:
       '@ionic/react-router':
         specifier: ^7.0.0
         version: 7.5.0(react-dom@18.2.0)(react-router-dom@5.3.4)(react-router@5.3.4)(react@18.2.0)
+      '@t3-oss/env-core':
+        specifier: ^0.7.1
+        version: 0.7.1(typescript@5.1.6)(zod@3.22.4)
+      '@tanstack/react-query':
+        specifier: ^5.7.2
+        version: 5.7.2(react-dom@18.2.0)(react@18.2.0)
       '@types/react-router':
         specifier: ^5.1.20
         version: 5.1.20
@@ -71,6 +77,9 @@ importers:
       ui:
         specifier: workspace:*
         version: link:../../packages/ui
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@capacitor/cli':
         specifier: 5.5.0
@@ -2779,6 +2788,27 @@ packages:
       '@t3-oss/env-core': 0.7.1(typescript@5.1.6)(zod@3.22.4)
       typescript: 5.1.6
       zod: 3.22.4
+    dev: false
+
+  /@tanstack/query-core@5.7.2:
+    resolution: {integrity: sha512-vPYoNCOI8W+jFLnyEAYQL7/qURE7XzVE/TvkmNSko8LU55jFshee342p4GNFOTsYFgJty7Da5bw4m2P3vaKWMw==}
+    dev: false
+
+  /@tanstack/react-query@5.7.2(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-NMsfz0Wd3VPDvSpX9sw2x07r0kf9HwuAlNNHQvwMUHM7EcuVN/LYmlmTe40dWER1c/92Jhc5LODdtW0PyvHsFg==}
+    peerDependencies:
+      react: ^18.0.0
+      react-dom: ^18.0.0
+      react-native: '*'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+    dependencies:
+      '@tanstack/query-core': 5.7.2
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
     dev: false
 
   /@testing-library/dom@9.3.3:

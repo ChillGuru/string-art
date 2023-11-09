@@ -1,4 +1,5 @@
 import { checkAdmin, checkUser } from '@/auth';
+import { emptyHandler } from '@/helpers/emptyHandler';
 
 type POSTParams = { params: { role?: 'user' | 'admin' } };
 export function POST(req: Request, { params }: POSTParams) {
@@ -21,3 +22,5 @@ export function POST(req: Request, { params }: POSTParams) {
   }
   return new Response('Forbidden', { status: 403 });
 }
+
+export const OPTIONS = emptyHandler;
