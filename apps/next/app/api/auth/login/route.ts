@@ -1,10 +1,11 @@
-import db from '@/db';
-import { Codes } from '@/db/schema';
-import { envServer } from '@/env/server.mjs';
-
 import { eq } from 'drizzle-orm';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
+
+import db from '@/db';
+import { Codes } from '@/db/schema';
+import { envServer } from '@/env/server.mjs';
+import { emptyHandler } from '@/helpers/emptyHandler';
 
 const loginBodySchema = z.object({ code: z.string() });
 export async function POST(req: Request) {
@@ -38,3 +39,5 @@ export async function POST(req: Request) {
   });
   return Response.json({ token });
 }
+
+export const OPTIONS = emptyHandler;

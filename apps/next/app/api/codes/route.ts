@@ -1,9 +1,10 @@
+import { eq } from 'drizzle-orm';
+import { z } from 'zod';
+
 import { checkAdmin } from '@/auth';
 import db from '@/db';
 import { Codes } from '@/db/schema';
-
-import { eq } from 'drizzle-orm';
-import { z } from 'zod';
+import { emptyHandler } from '@/helpers/emptyHandler';
 
 export async function GET(req: Request) {
   if (!checkAdmin(req)) {
@@ -60,3 +61,5 @@ export async function DELETE(req: Request) {
 
   return Response.json(deletedCodes[0]);
 }
+
+export const OPTIONS = emptyHandler;
