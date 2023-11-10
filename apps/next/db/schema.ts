@@ -11,14 +11,3 @@ export const Codes = sqliteTable('codes', {
     .notNull()
     .$defaultFn(() => new Date()),
 });
-
-export const Admins = sqliteTable('admins', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  password: text('password').notNull(),
-  createdAt: integer('created_at', { mode: 'timestamp' })
-    .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' })
-    .notNull()
-    .$defaultFn(() => new Date()),
-});
