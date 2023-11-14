@@ -34,6 +34,7 @@ import '@ionic/react/css/text-alignment.css';
 import '@ionic/react/css/text-transformation.css';
 
 /* Theme variables */
+import { Protected } from './components/routing/Protected';
 import './theme/variables.css';
 
 setupIonicReact();
@@ -42,6 +43,16 @@ const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
       <MainHeader />
+      <IonRouterOutlet>
+        <Route exact path='/'>
+          main
+        </Route>
+        <Protected>
+          <Route exact path='/pro'>
+            pro
+          </Route>
+        </Protected>
+      </IonRouterOutlet>
       {/* <IonTabs>
         <IonRouterOutlet>
           <Route exact path='/tab1'>

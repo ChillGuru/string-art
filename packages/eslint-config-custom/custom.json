@@ -22,7 +22,11 @@
     "React": true
   },
   "parser": "@typescript-eslint/parser",
-  "plugins": ["react", "@typescript-eslint", "prettier"],
+  "plugins": [
+    "react",
+    "@typescript-eslint",
+    "prettier"
+  ],
   "rules": {
     "@next/next/no-img-element": "off",
     "@typescript-eslint/ban-ts-comment": "off",
@@ -41,8 +45,13 @@
       }
     ],
     "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/no-unused-vars": ["warn"],
-    "@typescript-eslint/object-curly-spacing": ["warn", "always"],
+    "@typescript-eslint/no-unused-vars": [
+      "warn"
+    ],
+    "@typescript-eslint/object-curly-spacing": [
+      "warn",
+      "always"
+    ],
     "@typescript-eslint/semi": "warn",
     "@typescript-eslint/space-infix-ops": [
       "warn",
@@ -55,7 +64,9 @@
     "camelcase": [
       "warn",
       {
-        "allow": ["unstable_"]
+        "allow": [
+          "unstable_"
+        ]
       }
     ],
     "comma-spacing": "warn",
@@ -77,8 +88,8 @@
       {
         "groups": [
           "builtin",
-          "internal",
           "external",
+          "internal",
           "parent",
           "sibling",
           "index",
@@ -102,7 +113,10 @@
     "no-console": "off",
     "no-multiple-empty-lines": "warn",
     "no-param-reassign": "off",
-    "no-restricted-syntax": [0, "ForOfStatement"],
+    "no-restricted-syntax": [
+      0,
+      "ForOfStatement"
+    ],
     "no-shadow": "off",
     "no-trailing-spaces": "warn",
     "no-underscore-dangle": "off",
@@ -124,13 +138,21 @@
     "react/function-component-definition": [
       "warn",
       {
-        "namedComponents": ["arrow-function", "function-declaration"]
+        "namedComponents": [
+          "arrow-function",
+          "function-declaration"
+        ]
       }
     ],
     "react/jsx-filename-extension": [
       1,
       {
-        "extensions": [".tsx", ".ts", ".js", ".jsx"]
+        "extensions": [
+          ".tsx",
+          ".ts",
+          ".js",
+          ".jsx"
+        ]
       }
     ],
     "react/jsx-indent": "warn",

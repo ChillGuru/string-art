@@ -10,6 +10,7 @@ export default defineConfig({
   resolve: {
     alias: {
       styles: path.resolve(__dirname, '../../packages/ui/styles'),
+      '@': path.resolve(__dirname, './src'),
     },
     // preserveSymlinks: true,
   },
