@@ -1,14 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
+import { ReactNode } from 'react';
 import { Redirect } from 'react-router';
 
 import { env } from '@/env';
-import { Token } from '@/services/Token';
+import { UserRole } from '@/modules/Auth/models';
+import { Token } from '@/modules/Auth/service';
 
-export function Protected({ children }: React.PropsWithChildren) {
+export function Protected({
+  userRole,
+  children,
+}: {
+  userRole: UserRole;
+  children: ReactNode;
+}) {
   const authCheck = useQuery({
     queryKey: ['auth-check'],
     queryFn: async () => {
-      const res = await fetch(`${env.VITE_API_URL}/auth/check/admin`, {
+      const res = await fetch(`${env.VITE_API_URL}/auth/check/${userRole}`, {
         method: 'POST',
         headers: Token.value
           ? {
@@ -21,7 +29,7 @@ export function Protected({ children }: React.PropsWithChildren) {
   });
 
   if (authCheck.data === undefined) {
-    return 'Loading...';
+    return 'Loading...'; // TODO put smth better here
   }
 
   if (!authCheck.data) {

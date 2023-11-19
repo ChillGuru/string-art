@@ -10,7 +10,9 @@ export async function GET(req: Request) {
   if (!checkAdmin(req)) {
     return new Response('Forbidden', { status: 403 });
   }
-  const codes = await db.select().from(Codes);
+  const codes = await db
+    .select({ id: Codes.id, timesUsed: Codes.timesUsed, value: Codes.value })
+    .from(Codes);
   return Response.json(codes);
 }
 
