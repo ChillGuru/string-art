@@ -59,6 +59,9 @@ importers:
       '@types/react-router-dom':
         specifier: ^5.3.3
         version: 5.3.3
+      axios:
+        specifier: ^1.4.0
+        version: 1.5.1
       ionicons:
         specifier: ^7.0.0
         version: 7.2.1
@@ -124,7 +127,7 @@ importers:
         specifier: ^22.1.0
         version: 22.1.0
       sass:
-        specifier: ^1.63.6
+        specifier: ^1.69.5
         version: 1.69.5
       tsconfig:
         specifier: workspace:*
