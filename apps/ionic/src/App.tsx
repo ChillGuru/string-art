@@ -20,6 +20,7 @@ import '@ionic/react/css/text-transformation.css';
 
 /* Theme variables */
 import { Protected } from './components/routing/Protected';
+import { AdminPage } from './pages/AdminPage';
 import { LoginPage } from './pages/LoginPage';
 import './theme/variables.css';
 
@@ -36,9 +37,7 @@ const App: React.FC = () => (
           </Route>
         </Protected>
         <Protected userRole='admin'>
-          <Route exact path='/admin'>
-            pro
-          </Route>
+          <Route exact path='/admin' component={AdminPage} />
         </Protected>
       </IonRouterOutlet>
     </IonReactRouter>
