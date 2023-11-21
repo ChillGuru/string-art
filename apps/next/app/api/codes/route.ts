@@ -6,7 +6,7 @@ import db from '@/db';
 import { Codes } from '@/db/schema';
 import { emptyHandler } from '@/helpers/emptyHandler';
 
-const strippedSelection = {
+const selectionWithoutDates = {
   id: Codes.id,
   timesUsed: Codes.timesUsed,
   value: Codes.value,
@@ -16,7 +16,7 @@ export async function GET(req: Request) {
   if (!checkAdmin(req)) {
     return new Response('Forbidden', { status: 403 });
   }
-  const codes = await db.select(strippedSelection).from(Codes);
+  const codes = await db.select(selectionWithoutDates).from(Codes);
   return Response.json(codes);
 }
 
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
   const newCodes = await db
     .insert(Codes)
     .values({ value: body.code })
-    .returning(strippedSelection);
+    .returning(selectionWithoutDates);
 
   return Response.json(newCodes[0]);
 }
@@ -62,7 +62,7 @@ export async function DELETE(req: Request) {
   const deletedCodes = await db
     .delete(Codes)
     .where(eq(Codes.value, body.code.toString()))
-    .returning();
+    .returning(selectionWithoutDates);
 
   return Response.json(deletedCodes[0]);
 }

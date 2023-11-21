@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 
 import { CodeListItem } from '@/components/Admin/CodeListItem';
 import { Code, CodeForm, codeFormSchema } from '@/modules/Codes/models';
-import { addCodeMutation } from '@/modules/Codes/mutations';
+import { addCodeMutation, deleteCodeMutation } from '@/modules/Codes/mutations';
 import { getAllCodesQuery } from '@/modules/Codes/queries';
 
 import styles from './styles.module.scss';
@@ -15,6 +15,7 @@ export function AdminPage() {
 
   const codesQ = useQuery(getAllCodesQuery);
   const addCodeM = useMutation(addCodeMutation);
+  const deleteCodeM = useMutation(deleteCodeMutation);
 
   const codeForm = useForm<CodeForm>({ resolver: zodResolver(codeFormSchema) });
 
@@ -32,10 +33,27 @@ export function AdminPage() {
       .catch(console.log);
   });
 
+  function deleteCode(input: CodeForm) {
+    deleteCodeM
+      .mutateAsync(input)
+      .then((resp) => {
+        qClient.setQueryData(getAllCodesQuery.queryKey, (old: Code[]) =>
+          old.filter((c) => c.id !== resp.id)
+        );
+      })
+      .catch(console.log);
+  }
+
   return (
     <div className={styles.container}>
       <ul className={styles.list}>
-        {codesQ.data?.map((c) => <CodeListItem key={c.id} code={c} />)}
+        {codesQ.data?.map((c) => (
+          <CodeListItem
+            key={c.id}
+            code={c}
+            handleDelete={() => deleteCode({ code: c.value })}
+          />
+        ))}
       </ul>
       <form onSubmit={onSubmit} className={styles.form}>
         <IonInput

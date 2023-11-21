@@ -10,3 +10,9 @@ export const Token = {
     }
   },
 };
+
+export const AuthService = {
+  get authHeader() {
+    return { Authorization: Token.value ?? '' };
+  },
+};
