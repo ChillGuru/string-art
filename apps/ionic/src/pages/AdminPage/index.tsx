@@ -8,6 +8,7 @@ import { Code, CodeForm, codeFormSchema } from '@/modules/Codes/models';
 import { addCodeMutation, deleteCodeMutation } from '@/modules/Codes/mutations';
 import { getAllCodesQuery } from '@/modules/Codes/queries';
 
+import { AuthService } from '@/modules/Auth/service';
 import styles from './styles.module.scss';
 
 export function AdminPage() {
@@ -46,6 +47,15 @@ export function AdminPage() {
 
   return (
     <div className={styles.container}>
+      <IonButton
+        type='button'
+        size='large'
+        fill='clear'
+        className={styles.logOut}
+        onClick={AuthService.logOut}
+      >
+        Выйти
+      </IonButton>
       <ul className={styles.list}>
         {codesQ.data?.map((c) => (
           <CodeListItem
