@@ -18,7 +18,7 @@ import '@ionic/react/css/padding.css';
 import '@ionic/react/css/text-alignment.css';
 import '@ionic/react/css/text-transformation.css';
 
-/* Theme variables */
+import { Layout } from './components/Layout';
 import { AdminPage } from './components/pages/AdminPage';
 import { LoginPage } from './components/pages/LoginPage';
 import { Protected } from './components/routing/Protected';
@@ -39,7 +39,11 @@ export default function App() {
         <IonRouterOutlet>
           <Route exact path='/'>
             <SwitchByRoles onRoles={onRoles}>
-              <Route exact path='' component={LoginPage} />
+              <Route exact path=''>
+                <Layout>
+                  <LoginPage />
+                </Layout>
+              </Route>
             </SwitchByRoles>
           </Route>
 
