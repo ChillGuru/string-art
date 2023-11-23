@@ -15,8 +15,8 @@ export const AuthService = {
   get authHeader() {
     return { Authorization: Token.value ?? '' };
   },
-  logOut() {
+  logOut(callback: () => void) {
     Token.value = undefined;
-    window.location.reload();
+    callback();
   },
 };

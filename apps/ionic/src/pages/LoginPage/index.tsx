@@ -6,7 +6,7 @@ import { env } from '@/env';
 import { LoginForm, UserRole, loginFormSchema } from '@/modules/Auth/models';
 import { Token } from '@/modules/Auth/service';
 
-import styles from './LoginPage.module.scss';
+import styles from './styles.module.scss';
 
 export function LoginPage() {
   const loginForm = useForm<LoginForm>({
@@ -25,15 +25,16 @@ export function LoginPage() {
 
     Token.value = resp.token;
     if (resp.role === 'admin') {
-      return router.push('/admin', 'forward');
+      return router.push('/admin', 'forward', 'replace');
     }
     if (resp.role === 'user') {
-      return router.push('/app', 'forward');
+      return router.push('/app', 'forward', 'replace');
     }
   });
 
   return (
     <div className={styles.container}>
+      {env.VITE_API_URL}
       <form onSubmit={onSubmit} className={styles.form}>
         <input type='text' {...loginForm.register('code')} required />
         <button type='submit'>Вход</button>

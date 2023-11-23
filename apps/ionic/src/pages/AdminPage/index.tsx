@@ -1,18 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IonButton, IonInput } from '@ionic/react';
+import { IonButton, IonInput, useIonRouter } from '@ionic/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 
 import { CodeListItem } from '@/components/Admin/CodeListItem';
+import { AuthService } from '@/modules/Auth/service';
 import { Code, CodeForm, codeFormSchema } from '@/modules/Codes/models';
 import { addCodeMutation, deleteCodeMutation } from '@/modules/Codes/mutations';
 import { getAllCodesQuery } from '@/modules/Codes/queries';
 
-import { AuthService } from '@/modules/Auth/service';
 import styles from './styles.module.scss';
 
 export function AdminPage() {
   const qClient = useQueryClient();
+  const router = useIonRouter();
 
   const codesQ = useQuery(getAllCodesQuery);
   const addCodeM = useMutation(addCodeMutation);
@@ -52,7 +53,9 @@ export function AdminPage() {
         size='large'
         fill='clear'
         className={styles.logOut}
-        onClick={AuthService.logOut}
+        onClick={() =>
+          AuthService.logOut(() => router.push('/', 'root', 'replace'))
+        }
       >
         Выйти
       </IonButton>
