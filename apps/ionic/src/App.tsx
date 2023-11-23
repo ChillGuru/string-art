@@ -19,10 +19,10 @@ import '@ionic/react/css/text-alignment.css';
 import '@ionic/react/css/text-transformation.css';
 
 /* Theme variables */
+import { AdminPage } from './components/pages/AdminPage';
+import { LoginPage } from './components/pages/LoginPage';
 import { Protected } from './components/routing/Protected';
 import { SwitchByRoles } from './components/routing/SwitchByRoles';
-import { AdminPage } from './pages/AdminPage';
-import { LoginPage } from './pages/LoginPage';
 import './theme/variables.css';
 
 setupIonicReact();

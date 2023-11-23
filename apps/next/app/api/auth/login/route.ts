@@ -32,7 +32,8 @@ export async function POST(req: Request) {
   const foundCode = foundCodes[0];
   await db
     .update(Codes)
-    .set({ timesUsed: foundCode.timesUsed + 1, updatedAt: new Date() });
+    .set({ timesUsed: foundCode.timesUsed + 1, updatedAt: new Date() })
+    .where(eq(Codes.id, foundCode.id));
 
   const token = jwt.sign({ code: foundCode.value }, envServer.JWT_SECRET, {
     expiresIn: '4h',
