@@ -2,7 +2,7 @@ import { UseMutationOptions } from '@tanstack/react-query';
 
 import { env } from '@/env';
 
-import { AuthService, AuthService } from '../Auth/service';
+import { AuthService } from '../Auth/service';
 
 import { Code, CodeForm } from './models';
 
