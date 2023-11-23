@@ -1,22 +1,19 @@
-export const Token = {
-  get value(): string | undefined {
+export const AuthService = {
+  get token(): string | undefined {
     return localStorage.getItem('token') ?? undefined;
   },
-  set value(newValue: string | undefined) {
+  set token(newValue: string | undefined) {
     if (newValue) {
       localStorage.setItem('token', newValue);
     } else {
       localStorage.removeItem('token');
     }
   },
-};
-
-export const AuthService = {
   get authHeader() {
-    return { Authorization: Token.value ?? '' };
+    return { Authorization: this.token ?? '' };
   },
   logOut(callback: () => void) {
-    Token.value = undefined;
+    this.token = undefined;
     callback();
   },
 };

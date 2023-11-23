@@ -1,6 +1,6 @@
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { Route } from 'react-router-dom';
+import { Redirect, Route } from 'react-router-dom';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -20,28 +20,44 @@ import '@ionic/react/css/text-transformation.css';
 
 /* Theme variables */
 import { Protected } from './components/routing/Protected';
+import { SwitchByRoles } from './components/routing/SwitchByRoles';
 import { AdminPage } from './pages/AdminPage';
 import { LoginPage } from './pages/LoginPage';
 import './theme/variables.css';
 
 setupIonicReact();
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonRouterOutlet>
-        <Route exact path='/' component={LoginPage} />
-        <Protected userRole='user'>
-          <Route exact path='/app'>
-            user
-          </Route>
-        </Protected>
-        <Protected userRole='admin'>
-          <Route exact path='/admin' component={AdminPage} />
-        </Protected>
-      </IonRouterOutlet>
-    </IonReactRouter>
-  </IonApp>
-);
+const onRoles = {
+  user: () => <Redirect to='/app' />,
+  admin: () => <Redirect to='/admin' />,
+};
 
-export default App;
+export default function App() {
+  return (
+    <IonApp>
+      <IonReactRouter>
+        <IonRouterOutlet>
+          <Route exact path='/'>
+            <SwitchByRoles onRoles={onRoles}>
+              <Route exact path='' component={LoginPage} />
+            </SwitchByRoles>
+          </Route>
+
+          <Route exact path='/app'>
+            <Protected userRole='user'>
+              <Route exact path=''>
+                user
+              </Route>
+            </Protected>
+          </Route>
+
+          <Route exact path='/admin'>
+            <Protected userRole='admin'>
+              <Route exact path='' component={AdminPage} />
+            </Protected>
+          </Route>
+        </IonRouterOutlet>
+      </IonReactRouter>
+    </IonApp>
+  );
+}

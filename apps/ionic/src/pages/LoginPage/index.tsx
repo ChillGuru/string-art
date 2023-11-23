@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 
 import { env } from '@/env';
 import { LoginForm, UserRole, loginFormSchema } from '@/modules/Auth/models';
-import { Token } from '@/modules/Auth/service';
+import { AuthService } from '@/modules/Auth/service';
 
 import styles from './styles.module.scss';
 
@@ -23,7 +23,7 @@ export function LoginPage() {
       }
     ).then((res) => res.json());
 
-    Token.value = resp.token;
+    AuthService.token = resp.token;
     if (resp.role === 'admin') {
       return router.push('/admin', 'forward', 'replace');
     }
@@ -34,7 +34,6 @@ export function LoginPage() {
 
   return (
     <div className={styles.container}>
-      {env.VITE_API_URL}
       <form onSubmit={onSubmit} className={styles.form}>
         <input type='text' {...loginForm.register('code')} required />
         <button type='submit'>Вход</button>

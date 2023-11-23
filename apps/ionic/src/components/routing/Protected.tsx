@@ -4,7 +4,7 @@ import { Redirect } from 'react-router';
 
 import { env } from '@/env';
 import { UserRole } from '@/modules/Auth/models';
-import { Token } from '@/modules/Auth/service';
+import { AuthService } from '@/modules/Auth/service';
 
 export function Protected({
   userRole,
@@ -14,15 +14,11 @@ export function Protected({
   children: ReactNode;
 }) {
   const authCheck = useQuery({
-    queryKey: ['auth-check'],
-    queryFn: async () => {
+    queryKey: ['auth-check', 'protect'],
+    async queryFn() {
       const res = await fetch(`${env.VITE_API_URL}/auth/check/${userRole}`, {
         method: 'POST',
-        headers: Token.value
-          ? {
-              Authorization: Token.value,
-            }
-          : undefined,
+        headers: AuthService.authHeader,
       });
       return res.ok;
     },

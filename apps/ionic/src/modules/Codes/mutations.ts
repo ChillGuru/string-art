@@ -2,7 +2,7 @@ import { UseMutationOptions } from '@tanstack/react-query';
 
 import { env } from '@/env';
 
-import { AuthService, Token } from '../Auth/service';
+import { AuthService, AuthService } from '../Auth/service';
 
 import { Code, CodeForm } from './models';
 
@@ -12,7 +12,7 @@ export const addCodeMutation = {
       method: 'POST',
       body: JSON.stringify(input),
       headers: {
-        Authorization: Token.value ?? '',
+        Authorization: AuthService.token ?? '',
       },
     });
     const respData: Code = await resp.json();
