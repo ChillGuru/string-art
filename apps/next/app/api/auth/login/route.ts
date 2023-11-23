@@ -26,18 +26,19 @@ export async function POST(req: Request) {
     const token = jwt.sign({ admin: true }, envServer.JWT_SECRET, {
       expiresIn: '1d',
     });
-    return Response.json({ token });
+    return Response.json({ token, role: 'admin' });
   }
 
   const foundCode = foundCodes[0];
   await db
     .update(Codes)
-    .set({ timesUsed: foundCode.timesUsed + 1, updatedAt: new Date() });
+    .set({ timesUsed: foundCode.timesUsed + 1, updatedAt: new Date() })
+    .where(eq(Codes.id, foundCode.id));
 
   const token = jwt.sign({ code: foundCode.value }, envServer.JWT_SECRET, {
     expiresIn: '4h',
   });
-  return Response.json({ token });
+  return Response.json({ token, role: 'user' });
 }
 
 export const OPTIONS = emptyHandler;

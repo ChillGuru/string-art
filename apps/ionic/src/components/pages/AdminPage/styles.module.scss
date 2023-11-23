@@ -1,0 +1,41 @@
+.container {
+  margin: 0 auto;
+  max-width: 60rem;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+}
+
+.list {
+  margin: 0;
+  padding: 0.6rem;
+  width: 100%;
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+
+  list-style-type: none;
+  overflow-y: auto;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+
+  width: 100%;
+}
+
+.textInput {
+  outline: 1px solid var(--ion-color-step-950);
+}
+
+.logOut {
+  align-self: flex-end;
+}
