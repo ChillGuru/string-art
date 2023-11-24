@@ -3,7 +3,7 @@ import { IonButton, IonInput, useIonRouter } from '@ionic/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 
-import { CodeListItem } from '@/components/Admin/CodeListItem';
+import { CodeListItem } from '@/components/pages/AdminPage/CodeListItem';
 import { AuthService } from '@/modules/Auth/service';
 import { Code, CodeForm, codeFormSchema } from '@/modules/Codes/models';
 import { addCodeMutation, deleteCodeMutation } from '@/modules/Codes/mutations';

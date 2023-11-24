@@ -21,6 +21,7 @@ import '@ionic/react/css/text-transformation.css';
 import { Layout } from './components/Layout';
 import { AdminPage } from './components/pages/AdminPage';
 import { LoginPage } from './components/pages/LoginPage';
+import { UserPage } from './components/pages/UserPage';
 import { Protected } from './components/routing/Protected';
 import { SwitchByRoles } from './components/routing/SwitchByRoles';
 import './theme/variables.css';
@@ -50,14 +51,16 @@ export default function App() {
           <Route exact path='/app'>
             <Protected userRole='user'>
               <Route exact path=''>
-                user
+                <UserPage />
               </Route>
             </Protected>
           </Route>
 
           <Route exact path='/admin'>
             <Protected userRole='admin'>
-              <Route exact path='' component={AdminPage} />
+              <Route exact path=''>
+                <AdminPage />
+              </Route>
             </Protected>
           </Route>
         </IonRouterOutlet>

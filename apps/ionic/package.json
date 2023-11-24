@@ -1,5 +1,6 @@
 {
   "name": "ionic",
+  "description": "",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -26,6 +27,8 @@
     "@types/react-router": "^5.1.20",
     "@types/react-router-dom": "^5.3.3",
     "ionicons": "^7.0.0",
+    "numjs": "^0.16.1",
+    "opencv-react-ts": "^0.0.11",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.48.2",
@@ -39,6 +42,7 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",
+    "@types/numjs": "^0.16.7",
     "@types/react": "^18.2.33",
     "@types/react-dom": "^18.2.14",
     "@typescript-eslint/parser": "^5.59.2",
@@ -48,15 +52,12 @@
     "eslint": "^8.35.0",
     "eslint-config-custom": "workspace:*",
     "eslint-plugin-react": "^7.32.2",
-    "ndarray": "^1.0.19",
-    "numjs": "^0.16.1",
-    "opencv-react": "^0.0.6",
     "jsdom": "^22.1.0",
+    "ndarray": "^1.0.19",
     "sass": "^1.63.6",
     "tsconfig": "workspace:*",
     "typescript": "^5.1.6",
     "vite": "^4.3.9",
     "vitest": "^0.32.4"
-  },
-  "description": "An Ionic project"
+  }
 }
