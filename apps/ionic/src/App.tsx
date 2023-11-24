@@ -1,21 +1,6 @@
-import {
-  IonApp,
-  IonIcon,
-  IonLabel,
-  IonRouterOutlet,
-  IonTabBar,
-  IonTabButton,
-  IonTabs,
-  setupIonicReact,
-} from '@ionic/react';
+import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { ellipse, square, triangle } from 'ionicons/icons';
 import { Redirect, Route } from 'react-router-dom';
-import { MainHeader } from 'ui';
-
-import Tab1 from './pages/Tab1';
-import Tab2 from './pages/Tab2';
-import Tab3 from './pages/Tab3';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -33,58 +18,50 @@ import '@ionic/react/css/padding.css';
 import '@ionic/react/css/text-alignment.css';
 import '@ionic/react/css/text-transformation.css';
 
-/* Theme variables */
+import { Layout } from './components/Layout';
+import { AdminPage } from './components/pages/AdminPage';
+import { LoginPage } from './components/pages/LoginPage';
 import { Protected } from './components/routing/Protected';
+import { SwitchByRoles } from './components/routing/SwitchByRoles';
 import './theme/variables.css';
 
 setupIonicReact();
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <MainHeader />
-      <IonRouterOutlet>
-        <Route exact path='/'>
-          main
-        </Route>
-        <Protected>
-          <Route exact path='/pro'>
-            pro
-          </Route>
-        </Protected>
-      </IonRouterOutlet>
-      {/* <IonTabs>
+const onRoles = {
+  user: () => <Redirect to='/app' />,
+  admin: () => <Redirect to='/admin' />,
+};
+
+export default function App() {
+  return (
+    <IonApp>
+      <IonReactRouter>
         <IonRouterOutlet>
-          <Route exact path='/tab1'>
-            <Tab1 />
-          </Route>
-          <Route exact path='/tab2'>
-            <Tab2 />
-          </Route>
-          <Route path='/tab3'>
-            <Tab3 />
-          </Route>
           <Route exact path='/'>
-            <Redirect to='/tab1' />
+            <SwitchByRoles onRoles={onRoles}>
+              <Route exact path=''>
+                <Layout>
+                  <LoginPage />
+                </Layout>
+              </Route>
+            </SwitchByRoles>
+          </Route>
+
+          <Route exact path='/app'>
+            <Protected userRole='user'>
+              <Route exact path=''>
+                user
+              </Route>
+            </Protected>
+          </Route>
+
+          <Route exact path='/admin'>
+            <Protected userRole='admin'>
+              <Route exact path='' component={AdminPage} />
+            </Protected>
           </Route>
         </IonRouterOutlet>
-        <IonTabBar slot='bottom'>
-          <IonTabButton tab='tab1' href='/tab1'>
-            <IonIcon aria-hidden='true' icon={triangle} />
-            <IonLabel>Tab 1</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab='tab2' href='/tab2'>
-            <IonIcon aria-hidden='true' icon={ellipse} />
-            <IonLabel>Tab 2</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab='tab3' href='/tab3'>
-            <IonIcon aria-hidden='true' icon={square} />
-            <IonLabel>Tab 3</IonLabel>
-          </IonTabButton>
-        </IonTabBar>
-      </IonTabs> */}
-    </IonReactRouter>
-  </IonApp>
-);
-
-export default App;
+      </IonReactRouter>
+    </IonApp>
+  );
+}

@@ -1,12 +1,18 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'ionic-mobile',
+  appId: 'ru.string-art',
+  appName: 'String Art',
   webDir: 'dist',
   server: {
-    androidScheme: 'https'
-  }
+    hostname: 'localhost',
+    androidScheme: 'http',
+  },
+  plugins: {
+    CapacitorHttp: {
+      enabled: true,
+    },
+  },
 };
 
 export default config;

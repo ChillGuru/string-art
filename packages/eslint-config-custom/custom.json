@@ -139,7 +139,6 @@
       "warn",
       {
         "namedComponents": [
-          "arrow-function",
           "function-declaration"
         ]
       }

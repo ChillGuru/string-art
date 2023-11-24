@@ -1,7 +1,8 @@
 import { checkAdmin, checkUser } from '@/auth';
+import { UserRole } from '@/helpers/UserRole';
 import { emptyHandler } from '@/helpers/emptyHandler';
 
-type POSTParams = { params: { role?: 'user' | 'admin' } };
+type POSTParams = { params: { role?: UserRole } };
 export function POST(req: Request, { params }: POSTParams) {
   const isAllowed = (() => {
     switch (params.role) {

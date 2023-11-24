@@ -1,6 +1,6 @@
-import { envServer } from '@/env/server.mjs';
-
 import jwt from 'jsonwebtoken';
+
+import { envServer } from '@/env/server.mjs';
 
 export function checkAdmin(req: Request) {
   const token = getToken(req);
