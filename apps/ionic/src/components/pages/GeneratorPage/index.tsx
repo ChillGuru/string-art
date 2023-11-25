@@ -1,9 +1,13 @@
 import { useOpenCv } from 'opencv-react-ts';
 import { useEffect, useRef } from 'react';
+import { Cropper, ReactCropperElement } from 'react-cropper';
 import { Redirect } from 'react-router';
 
 import { useAppSelector } from '@/redux/hooks';
 import { RootState } from '@/redux/store';
+
+import '@/styles/cropper.scss';
+import styles from './styles.module.scss';
 
 export function GeneratorPage() {
   const { loaded, cv } = useOpenCv();
@@ -11,6 +15,7 @@ export function GeneratorPage() {
   const imgUrl = useAppSelector((r: RootState) => r.generator.imgUrl);
 
   const canvas = useRef<HTMLCanvasElement>(null);
+  const cropper = useRef<ReactCropperElement>(null);
 
   useEffect(() => {
     if (!canvas.current) {
@@ -26,7 +31,7 @@ export function GeneratorPage() {
       return;
     }
 
-    const IMG_SIZE = 600;
+    const IMG_SIZE = Math.min(500, canvas.current.clientWidth);
     const ctx = canvas.current.getContext('2d')!;
     const img = new Image();
     img.onload = () => {
@@ -50,7 +55,21 @@ export function GeneratorPage() {
   return (
     <div>
       {loaded ? 'opencv loaded' : 'opencv loading'}
-      <canvas ref={canvas} />
+      <h1>Обрежьте изображение по кругу</h1>
+      <Cropper
+        ref={cropper}
+        className={styles.cropper}
+        viewMode={3}
+        dragMode='move'
+        aspectRatio={1}
+        cropBoxMovable={false}
+        cropBoxResizable={false}
+        src={imgUrl}
+        autoCropArea={1}
+        background={false}
+        guides
+      />
+      {/* <canvas ref={canvas} /> */}
     </div>
   );
 }
