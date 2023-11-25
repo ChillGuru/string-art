@@ -5,5 +5,9 @@ html {
 body {
   padding: 0;
   margin: 0;
+  box-sizing: border-box;
   font-size: 1.6rem;
+
+  background-color: var(--ion-color-light);
+  color: var(--ion-color-dark);
 }
