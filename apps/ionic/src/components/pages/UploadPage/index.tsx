@@ -14,11 +14,11 @@ export function UploadPage() {
   const onSubmit = imgForm.handleSubmit((data) => {
     const imgFile = data.image[0];
     dispatch(setImgUrl(imgFile));
-    router.push('/app/generator', 'forward');
+    router.push('/app/crop', 'forward');
   });
 
   return (
-    <div>
+    <>
       <IonButton
         type='button'
         size='large'
@@ -37,8 +37,10 @@ export function UploadPage() {
           accept='image/*'
           style={{ width: '100%' }}
         />
-        <button type='submit'>Загрузить картинку</button>
+        <IonButton size='large' type='submit'>
+          Загрузить картинку
+        </IonButton>
       </form>
-    </div>
+    </>
   );
 }
