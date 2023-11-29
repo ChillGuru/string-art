@@ -6,10 +6,7 @@ import { z } from 'zod';
 import db from '@/db';
 import { Codes } from '@/db/schema';
 import { envServer } from '@/env/server.mjs';
-import {
-  emptyOptionsOperation,
-  getOperationDesc,
-} from '@/helpers/apiFramework';
+import { emptyOptionsOperation, getApiDesc } from '@/helpers/apiFramework';
 import { userRoleSchema } from '@/helpers/UserRole';
 
 const loginInputSchema = z.object({ code: z.string() });
@@ -20,9 +17,8 @@ const loginOutputSchema = z.object({
 
 export default apiRouteHandler({
   OPTIONS: emptyOptionsOperation,
-  POST: apiRouteOperation(
-    getOperationDesc({ operationId: 'login', tags: ['auth'] })
-  )
+
+  POST: apiRouteOperation(getApiDesc({ operationId: 'login', tags: ['auth'] }))
     .input({
       contentType: 'application/json',
       body: loginInputSchema,

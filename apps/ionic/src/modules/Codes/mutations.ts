@@ -1,6 +1,7 @@
 import { UseMutationOptions } from '@tanstack/react-query';
 
 import { env } from '@/env';
+import { jsonContentHeader } from '@/helpers/getJsonHeader';
 
 import { AuthService } from '../Auth/service';
 
@@ -12,7 +13,8 @@ export const addCodeMutation = {
       method: 'POST',
       body: JSON.stringify(input),
       headers: {
-        Authorization: AuthService.token ?? '',
+        ...AuthService.authHeader,
+        ...jsonContentHeader,
       },
     });
     const respData: Code = await resp.json();
@@ -27,6 +29,7 @@ export const deleteCodeMutation = {
       body: JSON.stringify(input),
       headers: {
         ...AuthService.authHeader,
+        ...jsonContentHeader,
       },
     });
     const respData: Code = await resp.json();

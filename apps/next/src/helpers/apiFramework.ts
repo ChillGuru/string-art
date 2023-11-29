@@ -15,15 +15,14 @@ const emptyOperationDesc = {
   servers: '',
 } satisfies OpenApiOperation;
 
-export function getOperationDesc(
+export function getApiDesc(
   operationDesc: Partial<OpenApiOperation>
 ): OpenApiOperation {
   return { ...emptyOperationDesc, ...operationDesc } satisfies OpenApiOperation;
 }
 
-const stringSchema = z.string();
 export const emptyOptionsOperation = apiRouteOperation(
-  getOperationDesc({ tags: ['options'] })
+  getApiDesc({ tags: ['_options'] })
 )
-  .outputs([{ status: 200, contentType: 'text/plain', schema: stringSchema }])
+  .outputs([{ status: 200, contentType: 'text/plain', schema: z.string() }])
   .handler((req, res) => res.send(''));

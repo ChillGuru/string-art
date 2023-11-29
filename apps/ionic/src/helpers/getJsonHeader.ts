@@ -1,3 +1,3 @@
-export function getJsonHeader() {
-  return { 'Content-Type': 'application/json' };
-}
+export const jsonContentHeader = {
+  'Content-Type': 'application/json',
+} as const;
