@@ -3,6 +3,7 @@ import { useIonRouter } from '@ionic/react';
 import { useForm } from 'react-hook-form';
 
 import { env } from '@/env';
+import { jsonContentHeader } from '@/helpers/jsonContentHeader';
 import { TLoginForm, UserRole, loginFormSchema } from '@/modules/Auth/models';
 import { AuthService } from '@/modules/Auth/service';
 
@@ -19,6 +20,7 @@ export function LoginForm() {
       `${env.VITE_API_URL}/auth/login`,
       {
         method: 'POST',
+        headers: { ...jsonContentHeader },
         body: JSON.stringify({ code: data.code }),
       }
     ).then((res) => res.json());

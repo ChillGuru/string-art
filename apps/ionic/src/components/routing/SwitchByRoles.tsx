@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 import { Redirect } from 'react-router';
 
 import { env } from '@/env';
+import { jsonContentHeader } from '@/helpers/jsonContentHeader';
 import { UserRole } from '@/modules/Auth/models';
 import { AuthService } from '@/modules/Auth/service';
 
@@ -21,7 +22,7 @@ export function SwitchByRoles({
         `${env.VITE_API_URL}/auth/check`,
         {
           method: 'POST',
-          headers: AuthService.authHeader,
+          headers: { ...AuthService.authHeader, ...jsonContentHeader },
         }
       ).then((res) => res.json());
       return resp;

@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken';
+import { NextApiRequest } from 'next';
 
 import { envServer } from '@/env/server.mjs';
 
-export function checkAdmin(req: Request) {
+export function checkAdmin(req: NextApiRequest) {
   const token = getToken(req);
   if (!token) {
     return false;
@@ -15,7 +16,7 @@ export function checkAdmin(req: Request) {
   }
 }
 
-export function checkUser(req: Request) {
+export function checkUser(req: NextApiRequest) {
   const token = getToken(req);
   if (!token) {
     return false;
@@ -28,6 +29,6 @@ export function checkUser(req: Request) {
   }
 }
 
-export function getToken(req: Request) {
-  return req.headers.get('Authorization');
+function getToken(req: NextApiRequest) {
+  return req.headers.authorization;
 }
