@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { ReactNode } from 'react';
+import { Redirect } from 'react-router';
 
 import { env } from '@/env';
 import { UserRole } from '@/modules/Auth/models';
@@ -35,7 +36,10 @@ export function SwitchByRoles({
     return children;
   }
 
-  const Comp = onRoles[authCheck.data.role];
+  // const Comp = onRoles[authCheck.data.role];
+  if (authCheck.data.role === 'admin') {
+    return <Redirect to='/admin' />;
+  }
 
-  return <Comp />;
+  return <Redirect to='/app' />;
 }
