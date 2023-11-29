@@ -3,7 +3,7 @@ import { ReactNode } from 'react';
 import { Redirect } from 'react-router';
 
 import { env } from '@/env';
-import { jsonContentHeader } from '@/helpers/getJsonHeader';
+import { jsonContentHeader } from '@/helpers/jsonContentHeader';
 import { UserRole } from '@/modules/Auth/models';
 import { AuthService } from '@/modules/Auth/service';
 

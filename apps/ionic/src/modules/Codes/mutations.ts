@@ -1,7 +1,7 @@
 import { UseMutationOptions } from '@tanstack/react-query';
 
 import { env } from '@/env';
-import { jsonContentHeader } from '@/helpers/getJsonHeader';
+import { jsonContentHeader } from '@/helpers/jsonContentHeader';
 
 import { AuthService } from '../Auth/service';
 

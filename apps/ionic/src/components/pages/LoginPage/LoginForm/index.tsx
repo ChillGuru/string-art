@@ -3,7 +3,7 @@ import { useIonRouter } from '@ionic/react';
 import { useForm } from 'react-hook-form';
 
 import { env } from '@/env';
-import { jsonContentHeader } from '@/helpers/getJsonHeader';
+import { jsonContentHeader } from '@/helpers/jsonContentHeader';
 import { TLoginForm, UserRole, loginFormSchema } from '@/modules/Auth/models';
 import { AuthService } from '@/modules/Auth/service';
 

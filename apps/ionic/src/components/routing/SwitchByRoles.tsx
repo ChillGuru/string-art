@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ReactNode } from 'react';
 
 import { env } from '@/env';
-import { jsonContentHeader } from '@/helpers/getJsonHeader';
+import { jsonContentHeader } from '@/helpers/jsonContentHeader';
 import { UserRole } from '@/modules/Auth/models';
 import { AuthService } from '@/modules/Auth/service';
 
