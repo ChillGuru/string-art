@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm';
+import { routeHandler } from 'next-rest-framework';
 import { z } from 'zod';
 
 import { checkAdmin } from '@/auth';
@@ -11,6 +12,8 @@ const selectionWithoutDates = {
   timesUsed: Codes.timesUsed,
   value: Codes.value,
 };
+
+const handler = routeHandler({});
 
 export async function GET(req: Request) {
   if (!checkAdmin(req)) {
