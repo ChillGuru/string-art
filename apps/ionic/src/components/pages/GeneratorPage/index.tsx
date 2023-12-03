@@ -38,6 +38,12 @@ export function GeneratorPage() {
       ctx.canvas.height = IMG_SIZE;
       ctx.clearRect(0, 0, IMG_SIZE, IMG_SIZE);
       ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, IMG_SIZE, IMG_SIZE);
+      // cut out circle
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.beginPath();
+      ctx.arc(IMG_SIZE / 2, IMG_SIZE / 2, IMG_SIZE / 2, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.fill();
     };
     img.src = croppedImgUrl;
 
