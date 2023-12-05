@@ -14,6 +14,7 @@ import { RootState } from '@/redux/store';
 import styles from './styles.module.scss';
 
 export function GeneratorPage() {
+  const PIN_COUNT = 288;
   const { loaded, cv } = useOpenCv();
 
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -31,14 +32,15 @@ export function GeneratorPage() {
       return;
     }
     if (data.type === 'color') {
-      return console.error('Цветные картинки не поддерживаются');
+      console.error('Цветные картинки не поддерживаются');
+      return;
     }
     console.log(data);
     const IMG_SIZE = GeneratorService.getImgSize(canvas.current);
     const ctx = canvas.current.getContext('2d')!;
     // make image black & white
     const R = nj.ones([IMG_SIZE, IMG_SIZE]).multiply(255); // ?
-    const rData = []; // ?
+    const rData: number[] = []; // ?
     const imgPixels = ctx.getImageData(0, 0, IMG_SIZE, IMG_SIZE);
     for (let y = 0; y < imgPixels.height; y++) {
       for (let x = 0; x < imgPixels.width; x++) {
@@ -56,6 +58,9 @@ export function GeneratorPage() {
     }
     ctx.clearRect(0, 0, IMG_SIZE, IMG_SIZE);
     ctx.putImageData(imgPixels, 0, 0, 0, 0, IMG_SIZE, IMG_SIZE);
+
+    const coords = GeneratorService.calculatePinCoords(PIN_COUNT, IMG_SIZE);
+    console.log(coords);
   });
 
   useEffect(() => {
