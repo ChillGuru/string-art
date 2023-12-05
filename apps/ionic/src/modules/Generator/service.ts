@@ -25,4 +25,18 @@ export const GeneratorService = {
     }
     return coords;
   },
+  linspace(start: number, end: number, count?: number): number[] {
+    if (count === undefined) {
+      count = Math.max(Math.round(end - start) + 1, 1);
+    }
+    if (count < 2) {
+      return count === 1 ? [start] : [];
+    }
+    const res = new Array<number>(count);
+    count--;
+    for (let i = count; i >= 0; i--) {
+      res[i] = Math.floor((end * i + start * (count - i)) / count);
+    }
+    return res;
+  },
 };

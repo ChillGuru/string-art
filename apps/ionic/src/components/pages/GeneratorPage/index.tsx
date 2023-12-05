@@ -15,6 +15,8 @@ import styles from './styles.module.scss';
 
 export function GeneratorPage() {
   const PIN_COUNT = 288;
+  const MIN_DISTANCE = 20;
+
   const { loaded, cv } = useOpenCv();
 
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -56,11 +58,45 @@ export function GeneratorPage() {
         rData.push(avg);
       }
     }
+    R.selection.data = rData;
     ctx.clearRect(0, 0, IMG_SIZE, IMG_SIZE);
     ctx.putImageData(imgPixels, 0, 0, 0, 0, IMG_SIZE, IMG_SIZE);
 
     const coords = GeneratorService.calculatePinCoords(PIN_COUNT, IMG_SIZE);
-    console.log(coords);
+    console.log('Координаты высчитаны');
+
+    function precalculateLines(pinCount: number, minDistance: number) {
+      console.log('Высчитываем линии');
+      const cacheSize = pinCount ** 2;
+      const lineCacheY = new Array<number[]>(cacheSize);
+      const lineCacheX = new Array<number[]>(cacheSize);
+      const lineCacheLength = new Array<number>(cacheSize).fill(0);
+      const lineCacheWeight = new Array<number>(cacheSize).fill(1);
+      for (let cur = 0; cur < pinCount; cur++) {
+        for (let next = cur + minDistance; next < pinCount; next++) {
+          const x0 = coords[cur][0],
+            y0 = coords[cur][1],
+            x1 = coords[next][0],
+            y1 = coords[next][1];
+          const dist = Math.floor(
+            Math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0))
+          );
+          const xs = GeneratorService.linspace(x0, x1, dist);
+          const ys = GeneratorService.linspace(y0, y1, dist);
+
+          lineCacheY[next * pinCount + cur] = ys;
+          lineCacheY[cur * pinCount + next] = ys;
+
+          lineCacheX[next * pinCount + cur] = xs;
+          lineCacheX[cur * pinCount + next] = xs;
+
+          lineCacheLength[next * pinCount + cur] = dist;
+          lineCacheLength[cur * pinCount + next] = dist;
+        }
+      }
+      console.log('Линии высчитаны');
+    }
+    precalculateLines(PIN_COUNT, MIN_DISTANCE);
   });
 
   useEffect(() => {
