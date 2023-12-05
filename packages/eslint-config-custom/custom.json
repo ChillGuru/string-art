@@ -7,14 +7,14 @@
   "extends": [
     // "custom/next",
     "eslint:recommended",
-    "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:react-hooks/recommended",
     "plugin:jsx-a11y/recommended",
+    "plugin:react/recommended",
     "plugin:react/jsx-runtime",
     "plugin:import/recommended",
-    "airbnb",
     "next/core-web-vitals",
+    // "airbnb",
     "plugin:prettier/recommended"
   ],
   "globals": {
@@ -28,6 +28,7 @@
     "prettier"
   ],
   "rules": {
+    "no-pluplus": "off",
     "@next/next/no-img-element": "off",
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/keyword-spacing": "warn",
@@ -124,10 +125,7 @@
     "no-use-before-define": "off",
     "no-useless-return": "off",
     "object-curly-newline": "off",
-    "object-curly-spacing": "warn",
     "prettier/prettier": "off",
-    "quote-props": "warn",
-    "quotes": "warn",
     "react-hooks/exhaustive-deps": [
       "warn",
       {
@@ -154,8 +152,14 @@
         ]
       }
     ],
-    "react/jsx-indent": "warn",
-    "react/jsx-indent-props": "warn",
+    "react/jsx-indent": [
+      1,
+      2
+    ],
+    "react/jsx-indent-props": [
+      1,
+      2
+    ],
     "react/jsx-props-no-spreading": "off",
     "react/no-array-index-key": "off",
     "react/no-unused-prop-types": "off",

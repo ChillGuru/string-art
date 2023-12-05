@@ -8,4 +8,7 @@ export const GeneratorService = {
     }
     return newFile;
   },
+  getImgSize(canvas: HTMLCanvasElement): number {
+    return Math.min(500, canvas.clientWidth);
+  },
 };
