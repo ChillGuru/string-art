@@ -6,7 +6,12 @@ import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { Redirect } from 'react-router';
 
-import { GeneratorForm, generatorFormSchema } from '@/modules/Generator/models';
+import { OpenCV } from '@/helpers/openCv';
+import {
+  GeneratorForm,
+  Tuple,
+  generatorFormSchema,
+} from '@/modules/Generator/models';
 import { GeneratorService } from '@/modules/Generator/service';
 import { useAppSelector } from '@/redux/hooks';
 import { RootState } from '@/redux/store';
@@ -16,6 +21,10 @@ import styles from './styles.module.scss';
 export function GeneratorPage() {
   const PIN_COUNT = 288;
   const MIN_DISTANCE = 20;
+  const SCALE = 20;
+  const MAX_LINES = 4000;
+  const LINE_WEIGHT = 20;
+  const HOOP_DIAMETER = 0.625;
 
   const { loaded, cv } = useOpenCv();
 
@@ -29,6 +38,10 @@ export function GeneratorPage() {
     resolver: zodResolver(generatorFormSchema),
   });
   const onSubmit = generatorForm.handleSubmit((data) => {
+    if (!cv) {
+      console.log('OpenCV not loaded yet');
+      return;
+    }
     if (!canvas.current) {
       console.log('Canvas not specified');
       return;
@@ -65,38 +78,137 @@ export function GeneratorPage() {
     const coords = GeneratorService.calculatePinCoords(PIN_COUNT, IMG_SIZE);
     console.log('Координаты высчитаны');
 
-    function precalculateLines(pinCount: number, minDistance: number) {
-      console.log('Высчитываем линии');
-      const cacheSize = pinCount ** 2;
-      const lineCacheY = new Array<number[]>(cacheSize);
-      const lineCacheX = new Array<number[]>(cacheSize);
-      const lineCacheLength = new Array<number>(cacheSize).fill(0);
-      const lineCacheWeight = new Array<number>(cacheSize).fill(1);
-      for (let cur = 0; cur < pinCount; cur++) {
-        for (let next = cur + minDistance; next < pinCount; next++) {
-          const x0 = coords[cur][0],
-            y0 = coords[cur][1],
-            x1 = coords[next][0],
-            y1 = coords[next][1];
-          const dist = Math.floor(
-            Math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0))
-          );
-          const xs = GeneratorService.linspace(x0, x1, dist);
-          const ys = GeneratorService.linspace(y0, y1, dist);
+    const lineRes = GeneratorService.calculateLines(
+      PIN_COUNT,
+      MIN_DISTANCE,
+      coords
+    );
+    console.log('Линии высчитаны');
 
-          lineCacheY[next * pinCount + cur] = ys;
-          lineCacheY[cur * pinCount + next] = ys;
+    function drawLines(
+      cv: OpenCV,
+      canvas: HTMLCanvasElement,
+      coords: Tuple[],
+      imgSize: number,
+      pinCount: number,
+      scale: number,
+      maxLines: number,
+      minDistance: number,
+      lineWeight: number,
+      hoopDiameter: number
+    ) {
+      const error = nj
+        .ones([imgSize, imgSize])
+        .multiply(255)
+        .subtract(
+          nj.uint8(R.selection.data as number[]).reshape(imgSize, imgSize)
+        );
+      const arr = nj.ones([imgSize * scale, imgSize * scale]).multiply(255);
+      const result = cv.matFromArray(
+        imgSize * scale,
+        imgSize * scale,
+        cv.CV_8UC1,
+        arr.selection.data
+      );
+      // const imgResult = nj.ones([imgSize, imgSize]).multiply(255);
+      // const lineMask = nj.zeros([imgSize, imgSize], 'float64');
 
-          lineCacheX[next * pinCount + cur] = xs;
-          lineCacheX[cur * pinCount + next] = xs;
+      let currentPin = 0,
+        threadLength = 0,
+        i = 0;
+      const lineSequence: number[] = [currentPin];
+      const lastPins: number[] = [];
 
-          lineCacheLength[next * pinCount + cur] = dist;
-          lineCacheLength[cur * pinCount + next] = dist;
+      function recursiveFn() {
+        if (i >= maxLines) {
+          console.log('Рисование закончено');
+          return;
         }
+        if (i % 10 === 0) {
+          //draw
+          const dsize = new cv.Size(imgSize * 2, imgSize * 2);
+          const dst = new cv.Mat();
+          cv.resize(result, dst, dsize, 0, 0, cv.INTER_AREA);
+          cv.imshow(canvas, dst);
+          dst.delete();
+        }
+        let maxError = -1,
+          bestPin = -1;
+        for (
+          let offset = minDistance;
+          offset < pinCount - minDistance;
+          offset++
+        ) {
+          const testPin = (currentPin + offset) % pinCount;
+          if (lastPins.includes(testPin)) {
+            continue;
+          }
+          const xs = lineRes.lineCacheX[testPin * pinCount + currentPin];
+          const ys = lineRes.lineCacheY[testPin * pinCount + currentPin];
+          const lineErr =
+            GeneratorService.getLineErr(error, ys, xs) *
+            lineRes.lineCacheWeight[testPin * pinCount + currentPin];
+          if (lineErr > maxError) {
+            maxError = lineErr;
+            bestPin = testPin;
+          }
+        }
+        lineSequence.push(bestPin);
+        const xs = lineRes.lineCacheX[bestPin * pinCount + currentPin];
+        const ys = lineRes.lineCacheY[bestPin * pinCount + currentPin];
+        const weight =
+          lineWeight * lineRes.lineCacheWeight[bestPin * pinCount + currentPin];
+
+        const lineMask = GeneratorService.createLine(
+          nj.zeros([imgSize, imgSize], 'float64'),
+          ys,
+          xs,
+          weight
+        );
+        GeneratorService.subtractArrays(error, lineMask);
+
+        const x0 = coords[currentPin][0];
+        const y0 = coords[currentPin][1];
+        const ptCur = new cv.Point(x0 * scale, y0 * scale);
+
+        const x1 = coords[bestPin][0];
+        const y1 = coords[bestPin][1];
+        const ptNext = new cv.Point(x1 * scale, y1 * scale);
+
+        cv.line(
+          result,
+          ptCur,
+          ptNext,
+          new cv.Scalar(0, 0, 0),
+          2,
+          cv.LINE_AA,
+          0
+        );
+        const distance = Math.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2);
+        threadLength += (hoopDiameter / imgSize) * distance;
+
+        lastPins.push(bestPin);
+        if (lastPins.length > minDistance) {
+          lastPins.shift();
+        }
+        currentPin = bestPin;
+        i++;
+        setTimeout(recursiveFn, 0);
       }
-      console.log('Линии высчитаны');
+      recursiveFn();
     }
-    precalculateLines(PIN_COUNT, MIN_DISTANCE);
+    drawLines(
+      cv,
+      canvas.current,
+      coords,
+      IMG_SIZE,
+      PIN_COUNT,
+      SCALE,
+      MAX_LINES,
+      MIN_DISTANCE,
+      LINE_WEIGHT,
+      HOOP_DIAMETER
+    );
   });
 
   useEffect(() => {
