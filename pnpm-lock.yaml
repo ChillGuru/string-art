@@ -75,7 +75,7 @@ importers:
         specifier: ^1.6.1
         version: 1.6.1
       ionicons:
-        specifier: ^7.0.0
+        specifier: ^7.2.1
         version: 7.2.1
       opencv-react-ts:
         specifier: ^0.0.11

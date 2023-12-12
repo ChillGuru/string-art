@@ -16,15 +16,16 @@ import { GeneratorService } from '@/modules/Generator/service';
 import { useAppSelector } from '@/redux/hooks';
 import { RootState } from '@/redux/store';
 
+import { Layout } from '@/components/Layout';
 import styles from './styles.module.scss';
 
 export function GeneratorPage() {
+  const MAX_LINES = 4000;
   const PIN_COUNT = 288;
+  const HOOP_DIAMETER = 0.625;
+  const LINE_WEIGHT = 20;
   const MIN_DISTANCE = 20;
   const SCALE = 20;
-  const MAX_LINES = 4000;
-  const LINE_WEIGHT = 20;
-  const HOOP_DIAMETER = 0.625;
 
   const { loaded, cv } = useOpenCv();
 
@@ -53,9 +54,9 @@ export function GeneratorPage() {
     console.log(data);
     const IMG_SIZE = GeneratorService.getImgSize(canvas.current);
     const ctx = canvas.current.getContext('2d')!;
-    // make image black & white
     const R = nj.ones([IMG_SIZE, IMG_SIZE]).multiply(255); // ?
     const rData: number[] = []; // ?
+    // make image black & white
     const imgPixels = ctx.getImageData(0, 0, IMG_SIZE, IMG_SIZE);
     for (let y = 0; y < imgPixels.height; y++) {
       for (let x = 0; x < imgPixels.width; x++) {
@@ -122,6 +123,7 @@ export function GeneratorPage() {
       function recursiveFn() {
         if (i >= maxLines) {
           console.log('Рисование закончено');
+          GeneratorService.cropCircle(canvas.getContext('2d')!, canvas.height);
           return;
         }
         if (i % 10 === 0) {
@@ -233,12 +235,8 @@ export function GeneratorPage() {
       ctx.canvas.height = IMG_SIZE;
       ctx.clearRect(0, 0, IMG_SIZE, IMG_SIZE);
       ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, IMG_SIZE, IMG_SIZE);
-      // cut out circle
-      ctx.globalCompositeOperation = 'destination-in';
-      ctx.beginPath();
-      ctx.arc(IMG_SIZE / 2, IMG_SIZE / 2, IMG_SIZE / 2, 0, Math.PI * 2);
-      ctx.closePath();
-      ctx.fill();
+
+      GeneratorService.cropCircle(ctx, IMG_SIZE);
     };
     img.src = croppedImgUrl;
 
@@ -252,31 +250,35 @@ export function GeneratorPage() {
   }
 
   return (
-    <div>
-      <h1>Начинаем плетение</h1>
-      {loaded ? 'opencv loaded' : 'opencv loading'}
-      <canvas ref={canvas} className={styles.imgDisplay} />
-      <form onSubmit={onSubmit}>
-        <label>
-          <input
-            type='radio'
-            {...generatorForm.register('type')}
-            value='bw'
-            checked
-          />
-          Чёрно-белая картинка
-        </label>
-        <label>
-          <input
-            type='radio'
-            {...generatorForm.register('type')}
-            value='color'
-            disabled
-          />
-          Цветная картинка
-        </label>
-        <IonButton type='submit'>Начать генерацию</IonButton>
-      </form>
-    </div>
+    <Layout>
+      <main>
+        <h1>Начинаем плетение</h1>
+        {loaded ? 'opencv loaded' : 'opencv loading'}
+        <canvas ref={canvas} className={styles.imgDisplay} />
+        <form onSubmit={onSubmit}>
+          <label>
+            <input
+              type='radio'
+              {...generatorForm.register('type')}
+              value='bw'
+              checked
+            />
+            Чёрно-белая картинка
+          </label>
+          <label>
+            <input
+              type='radio'
+              {...generatorForm.register('type')}
+              value='color'
+              disabled
+            />
+            Цветная картинка
+          </label>
+          <IonButton type='submit' size='large'>
+            Начать генерацию
+          </IonButton>
+        </form>
+      </main>
+    </Layout>
   );
 }

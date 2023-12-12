@@ -3,13 +3,12 @@
 
 .container {
   @media (max-width: 768px) {
-    font-size: 40px;
+    font-size: 4rem;
   }
-
   display: flex;
   align-items: center;
-  padding-left: 15px;
+  padding: 0 16px;
   font-family: 'Rozovii Chulok';
-  color: $gray-font-color;
-  font-size: 60px;
+  color: var(--ion-color-medium);
+  font-size: 6rem;
 }

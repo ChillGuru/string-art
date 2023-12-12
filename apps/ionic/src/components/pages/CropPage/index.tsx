@@ -1,9 +1,11 @@
-import { IonButton, useIonRouter } from '@ionic/react';
+import { IonButton, IonIcon, useIonRouter } from '@ionic/react';
+import { chevronBack } from 'ionicons/icons';
 import { useRef } from 'react';
 import { Cropper, ReactCropperElement } from 'react-cropper';
 import { Redirect } from 'react-router';
 
-import { setCroppedImgUrl } from '@/modules/Generator/slice';
+import { Layout } from '@/components/Layout';
+import { setCroppedImg } from '@/modules/Generator/slice';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { RootState } from '@/redux/store';
 
@@ -27,7 +29,7 @@ export function CropPage() {
         console.log('Unable to create cropped img blob');
         return;
       }
-      dispatch(setCroppedImgUrl(blob));
+      dispatch(setCroppedImg(blob));
       router.push('/app/generator', 'forward');
     });
   };
@@ -37,24 +39,41 @@ export function CropPage() {
   }
 
   return (
-    <div>
-      <h1>Обрежьте изображение по кругу</h1>
-      <Cropper
-        ref={cropper}
-        className={styles.cropper}
-        viewMode={3}
-        dragMode='move'
-        aspectRatio={1}
-        cropBoxMovable={false}
-        cropBoxResizable={false}
-        src={imgUrl}
-        autoCropArea={1}
-        background={false}
-        guides
-      />
-      <IonButton size='large' onClick={onCrop}>
-        Обрезать
-      </IonButton>
-    </div>
+    <Layout>
+      <main className={styles.main}>
+        <h1>
+          Шаг 2<br />
+          Редактирование
+        </h1>
+        <h2>Обрежьте изображение по кругу</h2>
+        <Cropper
+          ref={cropper}
+          className={styles.cropper}
+          viewMode={3}
+          dragMode='move'
+          aspectRatio={1}
+          cropBoxMovable={false}
+          cropBoxResizable={false}
+          src={imgUrl}
+          autoCropArea={1}
+          background={false}
+          guides
+        />
+        <div className={styles.btnGroup}>
+          <IonButton
+            type='button'
+            size='large'
+            shape='round'
+            fill='outline'
+            onClick={() => router.goBack()}
+          >
+            <IonIcon slot='icon-only' size='large' icon={chevronBack} />
+          </IonButton>
+          <IonButton type='button' size='large' shape='round' onClick={onCrop}>
+            Обрезать
+          </IonButton>
+        </div>
+      </main>
+    </Layout>
   );
 }

@@ -115,4 +115,16 @@ export const GeneratorService = {
     });
     return arrAMut;
   },
+
+  makeGrayscale() {
+    throw new Error('Not implemented');
+  },
+
+  cropCircle(ctx: CanvasRenderingContext2D, imgSize: number) {
+    ctx.globalCompositeOperation = 'destination-in';
+    ctx.beginPath();
+    ctx.arc(imgSize / 2, imgSize / 2, imgSize / 2, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.fill();
+  },
 } as const;

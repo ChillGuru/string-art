@@ -9,7 +9,11 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: ['generator/setImgUrl', 'generator/setCroppedImgUrl'],
+        ignoredActions: [
+          'generator/setImg',
+          'generator/setCroppedImg',
+          'generator/setFinishedImg',
+        ],
       },
     }),
 });

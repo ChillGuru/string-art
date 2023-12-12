@@ -1,3 +1,8 @@
+.main {
+  padding: 0 1rem;
+  text-align: center;
+}
+
 .cropper {
   margin: 0 auto;
   width: 100%;
@@ -5,4 +10,10 @@
   max-height: 500px;
   aspect-ratio: 1 / 1;
   overflow: hidden;
+  border-radius: 10px;
+}
+
+.btnGroup {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
 }

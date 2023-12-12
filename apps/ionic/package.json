@@ -29,7 +29,7 @@
     "@types/react-router": "^5.1.20",
     "@types/react-router-dom": "^5.3.3",
     "cropperjs": "^1.6.1",
-    "ionicons": "^7.0.0",
+    "ionicons": "^7.2.1",
     "opencv-react-ts": "^0.0.11",
     "react": "^18.2.0",
     "react-cropper": "^2.3.3",

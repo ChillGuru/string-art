@@ -50,9 +50,7 @@ export default function App() {
 
           <Route exact path='/app'>
             <Protected userRole='user'>
-              <Layout>
-                <UploadPage />
-              </Layout>
+              <UploadPage />
             </Protected>
           </Route>
           <Route exact path='/app/crop'>
