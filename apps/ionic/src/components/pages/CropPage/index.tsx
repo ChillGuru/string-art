@@ -65,7 +65,7 @@ export function CropPage() {
             size='large'
             shape='round'
             fill='outline'
-            onClick={() => router.goBack()}
+            onClick={() => router.push('/app', 'back', 'replace')}
           >
             <IonIcon slot='icon-only' size='large' icon={chevronBack} />
           </IonButton>
