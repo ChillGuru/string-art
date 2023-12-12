@@ -14,6 +14,10 @@ export default defineConfig({
     },
     // preserveSymlinks: true,
   },
+  define: {
+    global: {},
+    process: { env: {} },
+  },
   test: {
     globals: true,
     environment: 'jsdom',

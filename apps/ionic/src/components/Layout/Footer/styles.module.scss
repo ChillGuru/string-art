@@ -1,34 +1,21 @@
-@import 'styles/variables.scss';
-
 .container {
-    @media (max-width: 1200px){
-        max-width: 960px;
-    }
+  width: 100%;
+  padding: 1.2rem 0;
+  letter-spacing: 0.12em;
+  color: var(--ion-color-medium);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-    @media (max-width: 992px){
-        max-width: 720px;
-    }
-
-    @media (max-width: 768px) {
-        max-width: 540px;
-        font-size: 12px;
-    }
-
-    max-width: 1140px;
-    position: absolute;
-    left: auto;
-    bottom: 0;
-    width: inherit;
-    height: 80px;
-    align-self: center;
-    background-color: $base-color;
-    display: flex;
-    padding: 15px 0 0 10px;
-    
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 14px;
-    letter-spacing: 0.12em;
-    text-align: left;
-
+.icons {
+  font-size: 3.6rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  & > a {
+    color: inherit;
+    height: auto;
+  }
 }

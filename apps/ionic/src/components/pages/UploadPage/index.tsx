@@ -1,8 +1,9 @@
 import { IonButton, useIonRouter } from '@ionic/react';
 import { useForm } from 'react-hook-form';
 
+import { Layout } from '@/components/Layout';
 import { AuthService } from '@/modules/Auth/service';
-import { setImgUrl } from '@/modules/Generator/slice';
+import { setImg } from '@/modules/Generator/slice';
 import { useAppDispatch } from '@/redux/hooks';
 
 export function UploadPage() {
@@ -13,32 +14,36 @@ export function UploadPage() {
 
   const onSubmit = imgForm.handleSubmit((data) => {
     const imgFile = data.image[0];
-    dispatch(setImgUrl(imgFile));
-    router.push('/app/generator', 'forward');
+    dispatch(setImg(imgFile));
+    router.push('/app/crop', 'forward');
   });
 
   return (
-    <div>
-      <IonButton
-        type='button'
-        size='large'
-        fill='clear'
-        onClick={() =>
-          AuthService.logOut(() => router.push('/', 'root', 'replace'))
-        }
-      >
-        Выйти
-      </IonButton>
-      <form onSubmit={onSubmit}>
-        {imgForm.formState.isValid ? 'Можно субмиттить' : 'Нельзя субмиттить'}
-        <input
-          {...imgForm.register('image', { required: true })}
-          type='file'
-          accept='image/*'
-          style={{ width: '100%' }}
-        />
-        <button type='submit'>Загрузить картинку</button>
-      </form>
-    </div>
+    <Layout>
+      <main>
+        <IonButton
+          type='button'
+          size='large'
+          fill='clear'
+          onClick={() =>
+            AuthService.logOut(() => router.push('/', 'root', 'replace'))
+          }
+        >
+          Выйти
+        </IonButton>
+        <form onSubmit={onSubmit}>
+          {imgForm.formState.isValid ? 'Можно субмиттить' : 'Нельзя субмиттить'}
+          <input
+            {...imgForm.register('image', { required: true })}
+            type='file'
+            accept='image/*'
+            style={{ width: '100%' }}
+          />
+          <IonButton size='large' type='submit'>
+            Загрузить картинку
+          </IonButton>
+        </form>
+      </main>
+    </Layout>
   );
 }

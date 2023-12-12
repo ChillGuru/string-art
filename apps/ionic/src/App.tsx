@@ -20,6 +20,7 @@ import '@ionic/react/css/text-transformation.css';
 
 import { Layout } from './components/Layout';
 import { AdminPage } from './components/pages/AdminPage';
+import { CropPage } from './components/pages/CropPage';
 import { GeneratorPage } from './components/pages/GeneratorPage';
 import { LoginPage } from './components/pages/LoginPage';
 import { UploadPage } from './components/pages/UploadPage';
@@ -50,6 +51,11 @@ export default function App() {
           <Route exact path='/app'>
             <Protected userRole='user'>
               <UploadPage />
+            </Protected>
+          </Route>
+          <Route exact path='/app/crop'>
+            <Protected userRole='user'>
+              <CropPage />
             </Protected>
           </Route>
           <Route exact path='/app/generator'>
