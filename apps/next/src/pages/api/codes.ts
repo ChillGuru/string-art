@@ -1,24 +1,12 @@
 import { eq } from 'drizzle-orm';
 import { apiRouteHandler, apiRouteOperation } from 'next-rest-framework';
+import { codeArrayInputSchema, codeInputSchema, codeSchema } from 'ui';
 import { z } from 'zod';
 
 import { checkAdmin } from '@/auth';
 import db from '@/db';
 import { Codes } from '@/db/schema';
 import { emptyOptionsOperation, getApiDesc } from '@/helpers/apiFramework';
-
-const codeSchema = z.object({
-  id: z.number(),
-  timesUsed: z.number(),
-  value: z.string(),
-});
-
-const codeCreationSchema = z.object({
-  code: z
-    .string()
-    .length(8, 'Код должен содержать 8 символов')
-    .regex(/^\d+$/, 'Код должен состоять только из цифер'),
-});
 
 const selectionWithoutDates = {
   id: Codes.id,
@@ -51,7 +39,7 @@ export default apiRouteHandler({
   POST: apiRouteOperation(
     getApiDesc({ operationId: 'createCode', tags: ['codes'] })
   )
-    .input({ contentType: 'application/json', body: codeCreationSchema })
+    .input({ contentType: 'application/json', body: codeInputSchema })
     .outputs([
       { status: 200, contentType: 'application/json', schema: codeSchema },
       { status: 403, contentType: 'text/plain', schema: z.string() },
@@ -67,10 +55,38 @@ export default apiRouteHandler({
       return res.json(newCodes[0]);
     }),
 
+  PUT: apiRouteOperation(
+    getApiDesc({ operationId: 'createManyCodes', tags: ['codes'] })
+  )
+    .input({ contentType: 'application/json', body: codeArrayInputSchema })
+    .outputs([
+      {
+        status: 200,
+        contentType: 'application/json',
+        schema: codeSchema.array(),
+      },
+      { status: 403, contentType: 'application/json', schema: z.string() },
+    ])
+    .handler(async (req, res) => {
+      if (!checkAdmin(req)) {
+        return res.status(403).send('Forbidden');
+      }
+      const { codes } = req.body;
+      const newCodes = await db
+        .insert(Codes)
+        .values(
+          codes.map((c) => ({
+            value: c,
+          }))
+        )
+        .returning(selectionWithoutDates);
+      return res.json(newCodes);
+    }),
+
   DELETE: apiRouteOperation(
     getApiDesc({ operationId: 'deleteCode', tags: ['codes'] })
   )
-    .input({ contentType: 'application/json', body: codeCreationSchema })
+    .input({ contentType: 'application/json', body: codeInputSchema })
     .outputs([
       { status: 200, contentType: 'application/json', schema: codeSchema },
       { status: 403, contentType: 'application/json', schema: z.string() },

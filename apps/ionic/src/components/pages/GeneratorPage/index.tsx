@@ -16,10 +16,9 @@ import { GeneratorService } from '@/modules/Generator/service';
 import { useAppSelector } from '@/redux/hooks';
 import { RootState } from '@/redux/store';
 
-import { Layout } from '@/components/Layout';
 import styles from './styles.module.scss';
 
-export function GeneratorPage() {
+export default function GeneratorPage() {
   const MAX_LINES = 4000;
   const PIN_COUNT = 288;
   const HOOP_DIAMETER = 0.625;
@@ -250,35 +249,33 @@ export function GeneratorPage() {
   }
 
   return (
-    <Layout>
-      <main>
-        <h1>Начинаем плетение</h1>
-        {loaded ? 'opencv loaded' : 'opencv loading'}
-        <canvas ref={canvas} className={styles.imgDisplay} />
-        <form onSubmit={onSubmit}>
-          <label>
-            <input
-              type='radio'
-              {...generatorForm.register('type')}
-              value='bw'
-              checked
-            />
-            Чёрно-белая картинка
-          </label>
-          <label>
-            <input
-              type='radio'
-              {...generatorForm.register('type')}
-              value='color'
-              disabled
-            />
-            Цветная картинка
-          </label>
-          <IonButton type='submit' size='large'>
-            Начать генерацию
-          </IonButton>
-        </form>
-      </main>
-    </Layout>
+    <main>
+      <h1>Начинаем плетение</h1>
+      {loaded ? 'opencv loaded' : 'opencv loading'}
+      <canvas ref={canvas} className={styles.imgDisplay} />
+      <form onSubmit={onSubmit}>
+        <label>
+          <input
+            type='radio'
+            {...generatorForm.register('type')}
+            value='bw'
+            checked
+          />
+          Чёрно-белая картинка
+        </label>
+        <label>
+          <input
+            type='radio'
+            {...generatorForm.register('type')}
+            value='color'
+            disabled
+          />
+          Цветная картинка
+        </label>
+        <IonButton type='submit' size='large'>
+          Начать генерацию
+        </IonButton>
+      </form>
+    </main>
   );
 }

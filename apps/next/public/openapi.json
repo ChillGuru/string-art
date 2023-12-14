@@ -355,6 +355,55 @@
         "security": "",
         "servers": ""
       },
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PutCodesRequestBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PutCodesResponseBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Response for status 403",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PutCodesErrorResponseBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unknown error occurred, trying again might help.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UnexpectedError" }
+              }
+            }
+          }
+        },
+        "operationId": "createManyCodes",
+        "tags": ["codes"],
+        "description": "",
+        "summary": "",
+        "externalDocs": "",
+        "deprecated": false,
+        "parameters": "",
+        "callbacks": "",
+        "security": "",
+        "servers": ""
+      },
       "delete": {
         "requestBody": {
           "content": {
@@ -418,7 +467,7 @@
             "type": "string",
             "minLength": 8,
             "maxLength": 8,
-            "pattern": "^\\d+$"
+            "pattern": "^\\w+$"
           }
         },
         "required": ["code"],
@@ -461,7 +510,7 @@
             "type": "string",
             "minLength": 8,
             "maxLength": 8,
-            "pattern": "^\\d+$"
+            "pattern": "^\\w+$"
           }
         },
         "required": ["code"],
@@ -492,6 +541,36 @@
         },
         "required": ["token", "role"],
         "additionalProperties": false
+      },
+      "PutCodesErrorResponseBody": { "type": "string" },
+      "PutCodesRequestBody": {
+        "type": "object",
+        "properties": {
+          "codes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 8,
+              "pattern": "^\\w+$"
+            }
+          }
+        },
+        "required": ["codes"],
+        "additionalProperties": false
+      },
+      "PutCodesResponseBody": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "number" },
+            "timesUsed": { "type": "number" },
+            "value": { "type": "string" }
+          },
+          "required": ["id", "timesUsed", "value"],
+          "additionalProperties": false
+        }
       },
       "UnexpectedError": {
         "type": "object",

@@ -1,11 +1,10 @@
 import { UseMutationOptions } from '@tanstack/react-query';
+import { Code, CodeInput } from 'ui';
 
 import { env } from '@/env';
 import { jsonContentHeader } from '@/helpers/jsonContentHeader';
 
 import { AuthService } from '../Auth/service';
-
-import { Code, CodeForm } from './models';
 
 export const addCodeMutation = {
   async mutationFn(input) {
@@ -20,7 +19,7 @@ export const addCodeMutation = {
     const respData: Code = await resp.json();
     return respData;
   },
-} satisfies UseMutationOptions<Code, Error, CodeForm>;
+} satisfies UseMutationOptions<Code, Error, CodeInput>;
 
 export const deleteCodeMutation = {
   async mutationFn(input) {
@@ -35,4 +34,4 @@ export const deleteCodeMutation = {
     const respData: Code = await resp.json();
     return respData;
   },
-} satisfies UseMutationOptions<Code, Error, CodeForm>;
+} satisfies UseMutationOptions<Code, Error, CodeInput>;
