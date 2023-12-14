@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 import { NextApiRequest } from 'next';
 
 import { envServer } from '@/env/server.mjs';

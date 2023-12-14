@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'ru.string-art',
+  appId: 'ru.stringArt',
   appName: 'String Art',
   webDir: 'dist',
   server: {

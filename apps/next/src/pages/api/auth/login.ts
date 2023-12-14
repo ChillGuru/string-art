@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 import { apiRouteHandler, apiRouteOperation } from 'next-rest-framework';
 import { z } from 'zod';
 

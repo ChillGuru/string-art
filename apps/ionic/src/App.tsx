@@ -18,15 +18,19 @@ import '@ionic/react/css/padding.css';
 import '@ionic/react/css/text-alignment.css';
 import '@ionic/react/css/text-transformation.css';
 
+import { Suspense, lazy } from 'react';
+
 import { Layout } from './components/Layout';
+import { LoadingBody } from './components/Layout/LoadingBody';
 import { AdminPage } from './components/pages/AdminPage';
 import { CropPage } from './components/pages/CropPage';
-import { GeneratorPage } from './components/pages/GeneratorPage';
 import { LoginPage } from './components/pages/LoginPage';
 import { UploadPage } from './components/pages/UploadPage';
 import { Protected } from './components/routing/Protected';
 import { SwitchByRoles } from './components/routing/SwitchByRoles';
 import './theme/variables.css';
+
+const GeneratorPage = lazy(() => import('./components/pages/GeneratorPage'));
 
 setupIonicReact();
 
@@ -60,7 +64,11 @@ export default function App() {
           </Route>
           <Route exact path='/app/generator'>
             <Protected userRole='user'>
-              <GeneratorPage />
+              <Layout>
+                <Suspense fallback={<LoadingBody />}>
+                  <GeneratorPage />
+                </Suspense>
+              </Layout>
             </Protected>
           </Route>
 
