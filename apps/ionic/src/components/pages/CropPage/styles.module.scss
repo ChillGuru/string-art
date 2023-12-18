@@ -1,6 +1,12 @@
 .main {
+  position: relative;
   padding: 0 1rem;
   text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 
 .cropper {
@@ -11,9 +17,11 @@
   aspect-ratio: 1 / 1;
   overflow: hidden;
   border-radius: 10px;
+  flex: auto 0 0;
 }
 
 .btnGroup {
+  width: 100%;
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
 }

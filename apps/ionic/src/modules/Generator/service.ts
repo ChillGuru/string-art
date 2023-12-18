@@ -34,7 +34,7 @@ export const GeneratorService = {
 
   calculateLines(
     pinCount: number,
-    minDistance: number,
+    minInterval: number,
     coords: Tuple[]
   ): LineResult {
     const cacheSize = pinCount ** 2;
@@ -44,7 +44,7 @@ export const GeneratorService = {
     const lineCacheWeight = new Array<number>(cacheSize).fill(1);
 
     for (let cur = 0; cur < pinCount; cur++) {
-      for (let next = cur + minDistance; next < pinCount; next++) {
+      for (let next = cur + minInterval; next < pinCount; next++) {
         const x0 = coords[cur][0],
           y0 = coords[cur][1],
           x1 = coords[next][0],

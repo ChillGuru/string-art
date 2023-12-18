@@ -1,11 +1,13 @@
 import nj from '@d4c/numjs';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IonButton } from '@ionic/react';
+import { IonButton, IonRadio, IonRadioGroup } from '@ionic/react';
 import { useOpenCv } from 'opencv-react-ts';
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { Redirect } from 'react-router';
 
+import { BackButton } from '@/components/BackButton';
+import { LoadingBody } from '@/components/Layout/LoadingBody';
 import { OpenCV } from '@/helpers/openCv';
 import {
   GeneratorForm,
@@ -19,13 +21,6 @@ import { RootState } from '@/redux/store';
 import styles from './styles.module.scss';
 
 export default function GeneratorPage() {
-  const MAX_LINES = 4000;
-  const PIN_COUNT = 288;
-  const HOOP_DIAMETER = 0.625;
-  const LINE_WEIGHT = 20;
-  const MIN_DISTANCE = 20;
-  const SCALE = 20;
-
   const { loaded, cv } = useOpenCv();
 
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -75,12 +70,12 @@ export default function GeneratorPage() {
     ctx.clearRect(0, 0, IMG_SIZE, IMG_SIZE);
     ctx.putImageData(imgPixels, 0, 0, 0, 0, IMG_SIZE, IMG_SIZE);
 
-    const coords = GeneratorService.calculatePinCoords(PIN_COUNT, IMG_SIZE);
+    const coords = GeneratorService.calculatePinCoords(data.pinCount, IMG_SIZE);
     console.log('Координаты высчитаны');
 
     const lineRes = GeneratorService.calculateLines(
-      PIN_COUNT,
-      MIN_DISTANCE,
+      data.pinCount,
+      data.minInterval,
       coords
     );
     console.log('Линии высчитаны');
@@ -90,12 +85,14 @@ export default function GeneratorPage() {
       canvas: HTMLCanvasElement,
       coords: Tuple[],
       imgSize: number,
-      pinCount: number,
-      scale: number,
-      maxLines: number,
-      minDistance: number,
-      lineWeight: number,
-      hoopDiameter: number
+      {
+        pinCount,
+        scale,
+        maxLines,
+        minInterval,
+        lineWeight,
+        hoopDiameter,
+      }: GeneratorForm
     ) {
       const error = nj
         .ones([imgSize, imgSize])
@@ -121,7 +118,7 @@ export default function GeneratorPage() {
 
       function recursiveFn() {
         if (i >= maxLines) {
-          console.log('Рисование закончено');
+          console.log('Рисование закончено', lineSequence);
           GeneratorService.cropCircle(canvas.getContext('2d')!, canvas.height);
           return;
         }
@@ -136,8 +133,8 @@ export default function GeneratorPage() {
         let maxError = -1,
           bestPin = -1;
         for (
-          let offset = minDistance;
-          offset < pinCount - minDistance;
+          let offset = minInterval;
+          offset < pinCount - minInterval;
           offset++
         ) {
           const testPin = (currentPin + offset) % pinCount;
@@ -181,7 +178,7 @@ export default function GeneratorPage() {
           ptCur,
           ptNext,
           new cv.Scalar(0, 0, 0),
-          2,
+          Math.floor(lineWeight / 10),
           cv.LINE_AA,
           0
         );
@@ -189,7 +186,7 @@ export default function GeneratorPage() {
         threadLength += (hoopDiameter / imgSize) * distance;
 
         lastPins.push(bestPin);
-        if (lastPins.length > minDistance) {
+        if (lastPins.length > minInterval) {
           lastPins.shift();
         }
         currentPin = bestPin;
@@ -198,18 +195,7 @@ export default function GeneratorPage() {
       }
       recursiveFn();
     }
-    drawLines(
-      cv,
-      canvas.current,
-      coords,
-      IMG_SIZE,
-      PIN_COUNT,
-      SCALE,
-      MAX_LINES,
-      MIN_DISTANCE,
-      LINE_WEIGHT,
-      HOOP_DIAMETER
-    );
+    drawLines(cv, canvas.current, coords, IMG_SIZE, data);
   });
 
   useEffect(() => {
@@ -248,33 +234,43 @@ export default function GeneratorPage() {
     return <Redirect to='/app/crop' />;
   }
 
+  if (!loaded) {
+    return <LoadingBody />;
+  }
+
   return (
-    <main>
-      <h1>Начинаем плетение</h1>
-      {loaded ? 'opencv loaded' : 'opencv loading'}
+    <main className={styles.main}>
+      <h1>
+        Шаг 3<br />
+        Начинаем генерацию образца
+      </h1>
+
       <canvas ref={canvas} className={styles.imgDisplay} />
-      <form onSubmit={onSubmit}>
-        <label>
-          <input
-            type='radio'
+      <h2>Настройте параметры образца</h2>
+      <form onSubmit={onSubmit} className={styles.form}>
+        <IonRadioGroup value={'bw'} className={styles.radioGroup}>
+          <IonRadio
+            labelPlacement='end'
+            value={'bw'}
             {...generatorForm.register('type')}
-            value='bw'
-            checked
-          />
-          Чёрно-белая картинка
-        </label>
-        <label>
-          <input
-            type='radio'
-            {...generatorForm.register('type')}
-            value='color'
+          >
+            Чёрно-белый
+          </IonRadio>
+          <IonRadio
+            labelPlacement='end'
             disabled
-          />
-          Цветная картинка
-        </label>
-        <IonButton type='submit' size='large'>
-          Начать генерацию
-        </IonButton>
+            value={'color'}
+            {...generatorForm.register('type')}
+          >
+            Цветной
+          </IonRadio>
+        </IonRadioGroup>
+        <div className={styles.btnGroup}>
+          <BackButton backUrl='/app/crop' />
+          <IonButton type='submit' size='large' shape='round'>
+            Начать генерацию
+          </IonButton>
+        </div>
       </form>
     </main>
   );
