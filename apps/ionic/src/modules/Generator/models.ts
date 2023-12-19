@@ -13,6 +13,7 @@ export const generatorFormSchema = z.object({
 export type GeneratorForm = z.infer<typeof generatorFormSchema>;
 
 export type Tuple = [number, number];
+
 export type LineResult = {
   lineCacheX: number[][];
   lineCacheY: number[][];

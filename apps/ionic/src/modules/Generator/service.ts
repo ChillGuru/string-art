@@ -2,7 +2,23 @@ import { NdArray } from '@d4c/numjs';
 
 import { LineResult, Tuple } from './models';
 
+const quarterLetters = ['A', 'B', 'C', 'D'];
+
 export const GeneratorService = {
+  getGeneratorState(pending: boolean, finished: boolean) {
+    if (pending) {
+      return 'pending';
+    }
+    return finished ? 'finished' : 'idle';
+  },
+
+  pinToStr(pin: number, maxPins: number): string {
+    const pinsInQuarter = Math.floor(maxPins / 4);
+    const quarterIdx = Math.floor(pin / pinsInQuarter);
+    const pinIdx = (pin % pinsInQuarter) + 1;
+    return quarterLetters[quarterIdx] + pinIdx;
+  },
+
   getNewObjectUrl<T extends Blob>(current?: string, newFile?: T) {
     if (current) {
       URL.revokeObjectURL(current);

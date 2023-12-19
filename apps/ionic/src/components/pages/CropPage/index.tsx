@@ -26,7 +26,7 @@ export function CropPage() {
     }
     cropper.current.cropper.getCroppedCanvas().toBlob((blob) => {
       if (!blob) {
-        console.log('Unable to create cropped img blob');
+        console.error('Unable to create blob from cropped img');
         return;
       }
       dispatch(setCroppedImg(blob));
