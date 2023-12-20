@@ -1,10 +1,9 @@
 import { UseQueryOptions } from '@tanstack/react-query';
+import { Code } from 'ui';
 
 import { env } from '@/env';
 
 import { AuthService } from '../Auth/service';
-
-import { Code } from './models';
 
 export const getAllCodesQuery = {
   queryKey: ['get', 'codes'],

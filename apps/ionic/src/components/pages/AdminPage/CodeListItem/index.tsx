@@ -1,7 +1,7 @@
 import { IonButton } from '@ionic/react';
+import { Code } from 'ui';
 
 import { XIcon } from '@/components/Icons';
-import { Code } from '@/modules/Codes/models';
 
 import styles from './styles.module.scss';
 

@@ -2,10 +2,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { IonButton, IonInput, useIonRouter } from '@ionic/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
+import { Code, CodeInput, codeInputSchema } from 'ui';
 
 import { CodeListItem } from '@/components/pages/AdminPage/CodeListItem';
 import { AuthService } from '@/modules/Auth/service';
-import { Code, CodeForm, codeFormSchema } from '@/modules/Codes/models';
 import { addCodeMutation, deleteCodeMutation } from '@/modules/Codes/mutations';
 import { getAllCodesQuery } from '@/modules/Codes/queries';
 
@@ -19,7 +19,9 @@ export function AdminPage() {
   const addCodeM = useMutation(addCodeMutation);
   const deleteCodeM = useMutation(deleteCodeMutation);
 
-  const codeForm = useForm<CodeForm>({ resolver: zodResolver(codeFormSchema) });
+  const codeForm = useForm<CodeInput>({
+    resolver: zodResolver(codeInputSchema),
+  });
 
   const onSubmit = codeForm.handleSubmit((data) => {
     console.log('Adding code:', data);
@@ -35,7 +37,7 @@ export function AdminPage() {
       .catch(console.log);
   });
 
-  function deleteCode(input: CodeForm) {
+  function deleteCode(input: CodeInput) {
     deleteCodeM
       .mutateAsync(input)
       .then((resp) => {

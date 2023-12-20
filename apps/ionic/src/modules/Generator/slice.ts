@@ -1,28 +1,35 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
+import { GeneratorService } from './service';
+
 export type GeneratorState = {
   imgUrl?: string;
+  croppedImgUrl?: string;
+  finishedImgUrl?: string;
 };
 
-const initialState: GeneratorState = {
-  imgUrl: undefined,
-};
+const initialState: GeneratorState = {};
 
 export const generatorSlice = createSlice({
   name: 'generator',
   initialState,
   reducers: {
-    setImgUrl(state, action: PayloadAction<File | undefined>) {
-      if (state.imgUrl) {
-        URL.revokeObjectURL(state.imgUrl);
-      }
-      if (action.payload) {
-        state.imgUrl = URL.createObjectURL(action.payload);
-      } else {
-        state.imgUrl = action.payload;
-      }
+    setImg(state, { payload }: PayloadAction<File | undefined>) {
+      state.imgUrl = GeneratorService.getNewObjectUrl(state.imgUrl, payload);
+    },
+    setCroppedImg(state, { payload }: PayloadAction<Blob | undefined>) {
+      state.croppedImgUrl = GeneratorService.getNewObjectUrl(
+        state.croppedImgUrl,
+        payload
+      );
+    },
+    setFinishedImg(state, { payload }: PayloadAction<Blob | undefined>) {
+      state.finishedImgUrl = GeneratorService.getNewObjectUrl(
+        state.finishedImgUrl,
+        payload
+      );
     },
   },
 });
 
-export const { setImgUrl } = generatorSlice.actions;
+export const { setImg, setCroppedImg } = generatorSlice.actions;

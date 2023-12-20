@@ -9,7 +9,7 @@ export function LoginPage() {
       <h1 className={styles.header}>
         СОЗДАЙ
         <br />
-        СВОЮ КАРТИНУ НИТЯМИ
+        СВОЮ <i>КАРТИНУ </i> НИТЯМИ
         <br />
         ИЗ ЛЮБОЙ ФОТОГРАФИИ
       </h1>
