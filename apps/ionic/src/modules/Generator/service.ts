@@ -2,7 +2,23 @@ import { NdArray } from '@d4c/numjs';
 
 import { LineResult, Tuple } from './models';
 
+const quarterLetters = ['A', 'B', 'C', 'D'];
+
 export const GeneratorService = {
+  getGeneratorState(pending: boolean, finished: boolean) {
+    if (pending) {
+      return 'pending';
+    }
+    return finished ? 'finished' : 'idle';
+  },
+
+  pinToStr(pin: number, maxPins: number): string {
+    const pinsInQuarter = Math.floor(maxPins / 4);
+    const quarterIdx = Math.floor(pin / pinsInQuarter);
+    const pinIdx = (pin % pinsInQuarter) + 1;
+    return quarterLetters[quarterIdx] + pinIdx;
+  },
+
   getNewObjectUrl<T extends Blob>(current?: string, newFile?: T) {
     if (current) {
       URL.revokeObjectURL(current);
@@ -34,7 +50,7 @@ export const GeneratorService = {
 
   calculateLines(
     pinCount: number,
-    minDistance: number,
+    minInterval: number,
     coords: Tuple[]
   ): LineResult {
     const cacheSize = pinCount ** 2;
@@ -44,7 +60,7 @@ export const GeneratorService = {
     const lineCacheWeight = new Array<number>(cacheSize).fill(1);
 
     for (let cur = 0; cur < pinCount; cur++) {
-      for (let next = cur + minDistance; next < pinCount; next++) {
+      for (let next = cur + minInterval; next < pinCount; next++) {
         const x0 = coords[cur][0],
           y0 = coords[cur][1],
           x1 = coords[next][0],

@@ -6,9 +6,12 @@ export type GeneratorState = {
   imgUrl?: string;
   croppedImgUrl?: string;
   finishedImgUrl?: string;
+  steps: string[];
 };
 
-const initialState: GeneratorState = {};
+const initialState: GeneratorState = {
+  steps: [],
+};
 
 export const generatorSlice = createSlice({
   name: 'generator',
@@ -29,7 +32,11 @@ export const generatorSlice = createSlice({
         payload
       );
     },
+    setSteps(state, { payload }: PayloadAction<string[]>) {
+      state.steps = payload;
+    },
   },
 });
 
-export const { setImg, setCroppedImg } = generatorSlice.actions;
+export const { setImg, setCroppedImg, setFinishedImg, setSteps } =
+  generatorSlice.actions;
