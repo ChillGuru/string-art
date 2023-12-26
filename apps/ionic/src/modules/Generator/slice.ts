@@ -7,10 +7,12 @@ export type GeneratorState = {
   croppedImgUrl?: string;
   finishedImgUrl?: string;
   steps: string[];
+  currentStep: number;
 };
 
 const initialState: GeneratorState = {
   steps: [],
+  currentStep: 0,
 };
 
 export const generatorSlice = createSlice({
@@ -35,8 +37,23 @@ export const generatorSlice = createSlice({
     setSteps(state, { payload }: PayloadAction<string[]>) {
       state.steps = payload;
     },
+    stepBack(state) {
+      state.currentStep = Math.max(0, state.currentStep - 1);
+    },
+    stepForward(state) {
+      state.currentStep = Math.min(
+        state.steps.length - 1,
+        state.currentStep + 1
+      );
+    },
   },
 });
 
-export const { setImg, setCroppedImg, setFinishedImg, setSteps } =
-  generatorSlice.actions;
+export const {
+  setImg,
+  setCroppedImg,
+  setFinishedImg,
+  setSteps,
+  stepBack,
+  stepForward,
+} = generatorSlice.actions;

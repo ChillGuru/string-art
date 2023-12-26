@@ -6,6 +6,7 @@ import {
   IonRadio,
   IonRadioGroup,
   IonSpinner,
+  useIonRouter,
 } from '@ionic/react';
 import { downloadOutline, refreshOutline } from 'ionicons/icons';
 import { useOpenCv } from 'opencv-react-ts';
@@ -29,6 +30,7 @@ import { RootState } from '@/redux/store';
 import styles from './styles.module.scss';
 
 export default function GeneratorPage() {
+  const router = useIonRouter();
   const { loaded, cv } = useOpenCv();
 
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -345,7 +347,14 @@ export default function GeneratorPage() {
           )}
           {genState === 'finished' && (
             <>
-              <IonButton type='button' size='large' shape='round'>
+              <IonButton
+                type='button'
+                size='large'
+                shape='round'
+                onClick={() => {
+                  router.push('/app/assembly', 'forward');
+                }}
+              >
                 Плести
               </IonButton>
               <IonButton
