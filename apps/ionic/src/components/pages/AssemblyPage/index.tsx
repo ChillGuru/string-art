@@ -34,6 +34,10 @@ export function AssemblyPage() {
     <div className='container'>
       <Header>Шаг</Header>
       <main className={styles.main}>
+        <h1>
+          Шаг 4<br />
+          Плетение
+        </h1>
         <ol className={styles.list}>
           {new Array(5)
             .fill(0)
@@ -66,7 +70,7 @@ export function AssemblyPage() {
       </main>
       <footer className={styles.footer}>
         <div className={styles.footerGroup}>
-          {curStep + 1}/{steps.length}
+          Шаг: {curStep + 1}/{steps.length}
         </div>
         <div className={styles.footerMainGroup}>
           <IonButton
