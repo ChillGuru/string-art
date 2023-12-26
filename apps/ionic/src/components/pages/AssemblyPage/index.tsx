@@ -4,11 +4,19 @@ import { useState } from 'react';
 import { Redirect } from 'react-router';
 
 import { Header } from '@/components/Layout/Header';
+import { GeneratorService } from '@/modules/Generator/service';
 import { stepBack, stepForward } from '@/modules/Generator/slice';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { RootState } from '@/redux/store';
 
 import styles from './styles.module.scss';
+
+const quarterClasses = [
+  styles.sliceTopLeft,
+  styles.sliceTopRight,
+  styles.sliceBottomRight,
+  styles.sliceBottomLeft,
+];
 
 export function AssemblyPage() {
   const steps = useAppSelector((s: RootState) => s.generator.steps);
@@ -30,15 +38,23 @@ export function AssemblyPage() {
           {new Array(5)
             .fill(0)
             .map((_, idx) => idx - Math.floor(5 / 2))
-            // .filter(
-            //   (offset) =>
-            //     curStep + offset >= 0 && curStep + offset < steps.length
-            // )
             .map((offset) => (
               <li key={offset}>
                 {offset === 0 && (
                   <div className={styles.currentStep}>
-                    {steps[curStep + offset]}
+                    <div
+                      className={[
+                        styles.slice,
+                        quarterClasses[
+                          GeneratorService.pinToQuarter(steps[curStep + offset])
+                        ],
+                      ].join(' ')}
+                    >
+                      <div className={styles.sliceSegment} />
+                    </div>
+                    <span className={styles.currentStepText}>
+                      {steps[curStep + offset]}
+                    </span>
                   </div>
                 )}
                 {offset !== 0 && (

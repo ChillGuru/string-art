@@ -19,8 +19,8 @@ export const GeneratorService = {
     return quarterLetters[quarterIdx] + pinIdx;
   },
 
-  letterToQuarter(letter: string): number {
-    return quarterLetters.indexOf(letter);
+  pinToQuarter(pin: string): number {
+    return quarterLetters.indexOf(pin[0]);
   },
 
   getNewObjectUrl<T extends Blob>(current?: string, newFile?: T) {
