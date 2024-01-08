@@ -3,7 +3,6 @@ import { OpenApiOperation } from 'next-rest-framework/dist/types';
 import { z } from 'zod';
 
 const emptyOperationDesc = {
-  operationId: '',
   tags: [],
   description: '',
   summary: '',
@@ -15,14 +14,19 @@ const emptyOperationDesc = {
   servers: '',
 } satisfies OpenApiOperation;
 
+/** @deprecated */
 export function getApiDesc(
   operationDesc: Partial<OpenApiOperation>
 ): OpenApiOperation {
   return { ...emptyOperationDesc, ...operationDesc } satisfies OpenApiOperation;
 }
 
-export const emptyOptionsOperation = apiRouteOperation(
-  getApiDesc({ tags: ['_options'] })
-)
+export const emptyOptionsOperation = apiRouteOperation({
+  method: 'OPTIONS',
+  openApiOperation: { tags: ['_options'] },
+})
   .outputs([{ status: 200, contentType: 'text/plain', schema: z.string() }])
   .handler((req, res) => res.send(''));
+
+export const authDescription =
+  'Requires the "Authorization" header to have a valid token';

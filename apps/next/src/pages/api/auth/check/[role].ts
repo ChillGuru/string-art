@@ -1,16 +1,17 @@
-import { apiRouteHandler, apiRouteOperation } from 'next-rest-framework';
+import { apiRoute, apiRouteOperation } from 'next-rest-framework';
 import { z } from 'zod';
 
 import { checkAdmin, checkUser } from '@/auth';
-import { emptyOptionsOperation, getApiDesc } from '@/helpers/apiFramework';
+import { authDescription, emptyOptionsOperation } from '@/helpers/apiFramework';
 import { userRoleSchema } from '@/helpers/UserRole';
 
-export default apiRouteHandler({
-  OPTIONS: emptyOptionsOperation,
+export default apiRoute({
+  _checkRoleOptions: emptyOptionsOperation,
 
-  POST: apiRouteOperation(
-    getApiDesc({ operationId: 'hasRole', tags: ['auth'] })
-  )
+  hasRole: apiRouteOperation({
+    method: 'POST',
+    openApiOperation: { description: authDescription, tags: ['auth'] },
+  })
     .input({
       query: z.object({ role: userRoleSchema.optional() }),
     })
