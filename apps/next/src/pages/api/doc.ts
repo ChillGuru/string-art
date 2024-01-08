@@ -1,5 +1,5 @@
-import { docsApiRouteHandler } from 'next-rest-framework';
+import { docsApiRoute } from 'next-rest-framework';
 
-export default docsApiRouteHandler({
+export default docsApiRoute({
   docsConfig: { provider: 'swagger-ui' },
 });
