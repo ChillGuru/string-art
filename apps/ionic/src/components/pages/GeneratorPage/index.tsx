@@ -65,12 +65,13 @@ export default function GeneratorPage() {
       console.log('Canvas not specified');
       return;
     }
-    if (data.type === 'color') {
+    if (data.mode === 'color') {
       console.error('Цветные картинки не поддерживаются');
       return;
     }
     console.log(data);
     setPending(true);
+
     const canvasCur = canvas.current;
     const IMG_SIZE = GeneratorService.getImgSize(canvasCur);
 
@@ -85,37 +86,32 @@ export default function GeneratorPage() {
     console.log('Линии высчитаны');
 
     generatorTimeout.current = setTimeout(() => {
-      const ctx = canvasCur.getContext('2d')!;
-      const R = nj.ones([IMG_SIZE, IMG_SIZE]).multiply(255); // ?
-      const rData: number[] = []; // ?
-      // make image black & white
-      const imgPixels = ctx.getImageData(0, 0, IMG_SIZE, IMG_SIZE);
-      for (let y = 0; y < imgPixels.height; y++) {
-        for (let x = 0; x < imgPixels.width; x++) {
-          const idx = x * 4 + y * 4 * imgPixels.width;
-          let avg =
-            imgPixels.data[idx] +
-            imgPixels.data[idx + 1] +
-            imgPixels.data[idx + 2];
-          avg /= 3;
-          imgPixels.data[idx] = avg;
-          imgPixels.data[idx + 1] = avg;
-          imgPixels.data[idx + 2] = avg;
-          rData.push(avg);
-        }
-      }
-      R.selection.data = rData;
-      ctx.clearRect(0, 0, IMG_SIZE, IMG_SIZE);
-      ctx.putImageData(imgPixels, 0, 0, 0, 0, IMG_SIZE, IMG_SIZE);
+      const imgMat = cv.imread(canvasCur);
+      const grayscaleImgMat = new cv.Mat();
+      cv.cvtColor(imgMat, grayscaleImgMat, cv.COLOR_RGB2GRAY);
 
-      drawLines(cv, canvasCur, coords, IMG_SIZE, lineRes, R, data);
+      // const ctx = canvasCur.getContext('2d')!;
+      // const imgPixels = ctx.getImageData(0, 0, IMG_SIZE, IMG_SIZE);
+      // const imgData = GeneratorService.makeGrayscale(imgPixels);
+      // ctx.clearRect(0, 0, IMG_SIZE, IMG_SIZE);
+      // ctx.putImageData(imgPixels, 0, 0, 0, 0, IMG_SIZE, IMG_SIZE);
+
+      drawLines(
+        cv,
+        canvasCur,
+        coords,
+        IMG_SIZE,
+        lineRes,
+        grayscaleImgMat.data,
+        data
+      );
       function drawLines(
         cv: OpenCV,
         canvas: HTMLCanvasElement,
         coords: Tuple[],
         imgSize: number,
         lineResult: LineResult,
-        R: nj.NdArray,
+        imgData: number[],
         {
           pinCount,
           scale,
@@ -128,16 +124,15 @@ export default function GeneratorPage() {
         const error = nj
           .ones([imgSize, imgSize])
           .multiply(255)
-          .subtract(
-            nj.uint8(R.selection.data as number[]).reshape(imgSize, imgSize)
-          );
-        const arr = nj.ones([imgSize * scale, imgSize * scale]).multiply(255);
+          .subtract(nj.uint8(imgData).reshape(imgSize, imgSize));
         const result = cv.matFromArray(
           imgSize * scale,
           imgSize * scale,
-          cv.CV_8UC1,
-          arr.selection.data
+          cv.CV_8UC3,
+          []
         );
+        // fill result with white
+        result.setTo(new cv.Scalar(255, 255, 255));
         // const imgResult = nj.ones([imgSize, imgSize]).multiply(255);
         // const lineMask = nj.zeros([imgSize, imgSize], 'float64');
 
@@ -153,7 +148,6 @@ export default function GeneratorPage() {
             console.log('Рисование закончено', steps);
             const ctx = canvas.getContext('2d')!;
             GeneratorService.cropCircle(ctx, canvas.height);
-
             canvas.toBlob((blob) => {
               if (!blob) {
                 console.error('Unable to create blob from finished img');
@@ -221,11 +215,15 @@ export default function GeneratorPage() {
           const y1 = coords[bestPin][1];
           const ptNext = new cv.Point(x1 * scale, y1 * scale);
 
+          let color: number[];
+          // color = [0, 0, 0];
+          color = [130, 255, 255];
+
           cv.line(
             result,
             ptCur,
             ptNext,
-            new cv.Scalar(0, 0, 0),
+            new cv.Scalar(...color),
             Math.floor(lineWeight / 10),
             cv.LINE_AA,
             0
@@ -320,7 +318,7 @@ export default function GeneratorPage() {
               <IonRadio
                 labelPlacement='end'
                 value={'bw'}
-                {...generatorForm.register('type')}
+                {...generatorForm.register('mode')}
               >
                 Чёрно-белый
               </IonRadio>
@@ -328,7 +326,7 @@ export default function GeneratorPage() {
                 labelPlacement='end'
                 disabled
                 value={'color'}
-                {...generatorForm.register('type')}
+                {...generatorForm.register('mode')}
               >
                 Цветной
               </IonRadio>

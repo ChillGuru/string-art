@@ -19,7 +19,7 @@ const quarterClasses = [
 ];
 
 export function AssemblyPage() {
-  const steps = useAppSelector((s: RootState) => s.generator.steps);
+  const steps = useAppSelector((s: RootState) => s.generator.layers);
   const curStep = useAppSelector((s: RootState) => s.generator.currentStep);
 
   const dispatch = useAppDispatch();

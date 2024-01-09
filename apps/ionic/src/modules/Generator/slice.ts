@@ -6,12 +6,19 @@ export type GeneratorState = {
   imgUrl?: string;
   croppedImgUrl?: string;
   finishedImgUrl?: string;
-  steps: string[];
+  // layers: Record<string, LayerData>;
+  layers: string[];
   currentStep: number;
 };
 
+export type LayerData = {
+  color: [number, number, number];
+  steps: string[];
+};
+
 const initialState: GeneratorState = {
-  steps: [],
+  // layers: {},
+  layers: [],
   currentStep: 0,
 };
 
@@ -35,14 +42,14 @@ export const generatorSlice = createSlice({
       );
     },
     setSteps(state, { payload }: PayloadAction<string[]>) {
-      state.steps = payload;
+      state.layers = payload;
     },
     stepBack(state) {
       state.currentStep = Math.max(0, state.currentStep - 1);
     },
     stepForward(state) {
       state.currentStep = Math.min(
-        state.steps.length - 1,
+        state.layers.length - 1,
         state.currentStep + 1
       );
     },

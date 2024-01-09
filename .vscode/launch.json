@@ -2,7 +2,7 @@
   "configurations": [
     {
       "type": "node-terminal",
-      "name": "Run Script: dev",
+      "name": "dev next+ionic",
       "request": "launch",
       "command": "pnpm run dev",
       "cwd": "${workspaceFolder}"
