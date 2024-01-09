@@ -19,6 +19,7 @@ import { LoadingBody } from '@/components/Layout/LoadingBody';
 import { OpenCV } from '@/helpers/openCv';
 import {
   GeneratorForm,
+  LineResult,
   Tuple,
   generatorFormSchema,
 } from '@/modules/Generator/models';
@@ -71,8 +72,19 @@ export default function GeneratorPage() {
     console.log(data);
     setPending(true);
     const canvasCur = canvas.current;
+    const IMG_SIZE = GeneratorService.getImgSize(canvasCur);
+
+    const coords = GeneratorService.calculatePinCoords(data.pinCount, IMG_SIZE);
+    console.log('Координаты высчитаны');
+
+    const lineRes = GeneratorService.calculateLines(
+      data.pinCount,
+      data.minInterval,
+      coords
+    );
+    console.log('Линии высчитаны');
+
     generatorTimeout.current = setTimeout(() => {
-      const IMG_SIZE = GeneratorService.getImgSize(canvasCur);
       const ctx = canvasCur.getContext('2d')!;
       const R = nj.ones([IMG_SIZE, IMG_SIZE]).multiply(255); // ?
       const rData: number[] = []; // ?
@@ -96,25 +108,14 @@ export default function GeneratorPage() {
       ctx.clearRect(0, 0, IMG_SIZE, IMG_SIZE);
       ctx.putImageData(imgPixels, 0, 0, 0, 0, IMG_SIZE, IMG_SIZE);
 
-      const coords = GeneratorService.calculatePinCoords(
-        data.pinCount,
-        IMG_SIZE
-      );
-      console.log('Координаты высчитаны');
-
-      const lineRes = GeneratorService.calculateLines(
-        data.pinCount,
-        data.minInterval,
-        coords
-      );
-      console.log('Линии высчитаны');
-
-      drawLines(cv, canvasCur, coords, IMG_SIZE, data);
+      drawLines(cv, canvasCur, coords, IMG_SIZE, lineRes, R, data);
       function drawLines(
         cv: OpenCV,
         canvas: HTMLCanvasElement,
         coords: Tuple[],
         imgSize: number,
+        lineResult: LineResult,
+        R: nj.NdArray,
         {
           pinCount,
           scale,
@@ -187,22 +188,22 @@ export default function GeneratorPage() {
             if (lastPins.includes(testPin)) {
               continue;
             }
-            const xs = lineRes.lineCacheX[testPin * pinCount + currentPin];
-            const ys = lineRes.lineCacheY[testPin * pinCount + currentPin];
+            const xs = lineResult.lineCacheX[testPin * pinCount + currentPin];
+            const ys = lineResult.lineCacheY[testPin * pinCount + currentPin];
             const lineErr =
               GeneratorService.getLineErr(error, ys, xs) *
-              lineRes.lineCacheWeight[testPin * pinCount + currentPin];
+              lineResult.lineCacheWeight[testPin * pinCount + currentPin];
             if (lineErr > maxError) {
               maxError = lineErr;
               bestPin = testPin;
             }
           }
           steps.push(bestPin);
-          const xs = lineRes.lineCacheX[bestPin * pinCount + currentPin];
-          const ys = lineRes.lineCacheY[bestPin * pinCount + currentPin];
+          const xs = lineResult.lineCacheX[bestPin * pinCount + currentPin];
+          const ys = lineResult.lineCacheY[bestPin * pinCount + currentPin];
           const weight =
             lineWeight *
-            lineRes.lineCacheWeight[bestPin * pinCount + currentPin];
+            lineResult.lineCacheWeight[bestPin * pinCount + currentPin];
 
           const lineMask = GeneratorService.createLine(
             nj.zeros([imgSize, imgSize], 'float64'),
@@ -238,7 +239,10 @@ export default function GeneratorPage() {
           }
           currentPin = bestPin;
           i++;
-          generatorTimeout.current = setTimeout(recursiveFn, 0);
+
+          if (generatorTimeout.current) {
+            generatorTimeout.current = setTimeout(recursiveFn, 0);
+          }
         }
         recursiveFn();
       }
@@ -282,9 +286,8 @@ export default function GeneratorPage() {
   }, [cv, croppedImgUrl, finishedImgUrl]);
 
   useEffect(() => {
-    const timeoutId = generatorTimeout.current;
     return () => {
-      clearTimeout(timeoutId);
+      clearTimeout(generatorTimeout.current);
     };
   }, []);
 
