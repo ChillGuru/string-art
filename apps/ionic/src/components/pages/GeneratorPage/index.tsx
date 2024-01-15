@@ -18,7 +18,9 @@ import { BackButton } from '@/components/BackButton';
 import { LoadingBody } from '@/components/Layout/LoadingBody';
 import { OpenCV } from '@/helpers/openCv';
 import {
+  AssemblyLayerData,
   GeneratorForm,
+  GeneratorLayerData,
   LineResult,
   Tuple,
   generatorFormSchema,
@@ -35,9 +37,10 @@ export default function GeneratorPage() {
   const { loaded, cv } = useOpenCv();
 
   const canvas = useRef<HTMLCanvasElement>(null);
-  const generatorTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined
-  );
+
+  type TimeoutId = ReturnType<typeof setTimeout>;
+  const generatorTimeout = useRef<TimeoutId | undefined>(undefined);
+  const generatorInnerTimeout = useRef<TimeoutId | undefined>(undefined);
 
   const croppedImgUrl = useAppSelector(
     (s: RootState) => s.generator.croppedImgUrl
@@ -56,7 +59,7 @@ export default function GeneratorPage() {
   const generatorForm = useForm<GeneratorForm>({
     resolver: zodResolver(generatorFormSchema),
   });
-  const onSubmit = generatorForm.handleSubmit((data) => {
+  const onSubmit = generatorForm.handleSubmit((formData) => {
     if (!cv) {
       console.log('OpenCV not loaded yet');
       return;
@@ -65,30 +68,47 @@ export default function GeneratorPage() {
       console.log('Canvas not specified');
       return;
     }
-    if (data.mode === 'color') {
+    if (formData.mode === 'color') {
       console.error('Цветные картинки не поддерживаются');
       return;
     }
-    console.log(data);
+    console.log(formData);
     setPending(true);
 
     const canvasCur = canvas.current;
     const IMG_SIZE = GeneratorService.getImgSize(canvasCur);
 
-    const coords = GeneratorService.calculatePinCoords(data.pinCount, IMG_SIZE);
+    const coords = GeneratorService.calculatePinCoords(
+      formData.pinCount,
+      IMG_SIZE
+    );
     console.log('Координаты высчитаны');
 
     const lineRes = GeneratorService.calculateLines(
-      data.pinCount,
-      data.minInterval,
+      formData.pinCount,
+      formData.minInterval,
       coords
     );
     console.log('Линии высчитаны');
 
-    generatorTimeout.current = setTimeout(() => {
+    setTimeout(() => {
       const imgMat = cv.imread(canvasCur);
-      const grayscaleImgMat = new cv.Mat();
-      cv.cvtColor(imgMat, grayscaleImgMat, cv.COLOR_RGB2GRAY);
+      const layers: GeneratorLayerData[] = [];
+      switch (formData.mode) {
+        case 'bw': {
+          const grayscaleImgMat = new cv.Mat();
+          cv.cvtColor(imgMat, grayscaleImgMat, cv.COLOR_RGB2GRAY);
+          layers.push({
+            color: 'black',
+            colorRgb: [0, 0, 0],
+            layerImgData: grayscaleImgMat.data,
+          });
+          break;
+        }
+        // [130, 255, 255] [255,130,255] [255,255,130]
+        default:
+          throw new Error('Invalid generator mode');
+      }
 
       // const ctx = canvasCur.getContext('2d')!;
       // const imgPixels = ctx.getImageData(0, 0, IMG_SIZE, IMG_SIZE);
@@ -96,35 +116,41 @@ export default function GeneratorPage() {
       // ctx.clearRect(0, 0, IMG_SIZE, IMG_SIZE);
       // ctx.putImageData(imgPixels, 0, 0, 0, 0, IMG_SIZE, IMG_SIZE);
 
-      drawLines(
-        cv,
-        canvasCur,
-        coords,
-        IMG_SIZE,
-        lineRes,
-        grayscaleImgMat.data,
-        data
-      );
+      let layerIdx = 0;
+      generatorTimeout.current = setTimeout(() => {
+        drawLines(
+          cv,
+          canvasCur,
+          coords,
+          IMG_SIZE,
+          lineRes,
+          layers[layerIdx],
+          formData
+        );
+      }, 0);
       function drawLines(
         cv: OpenCV,
         canvas: HTMLCanvasElement,
         coords: Tuple[],
         imgSize: number,
         lineResult: LineResult,
-        imgData: number[],
-        {
+        layerData: GeneratorLayerData,
+        formData: GeneratorForm
+      ) {
+        const { color, colorRgb, layerImgData } = layerData;
+        const {
           pinCount,
           scale,
           maxLines,
           minInterval,
           lineWeight,
           hoopDiameter,
-        }: GeneratorForm
-      ) {
+        } = formData;
+
         const error = nj
           .ones([imgSize, imgSize])
           .multiply(255)
-          .subtract(nj.uint8(imgData).reshape(imgSize, imgSize));
+          .subtract(nj.uint8(layerImgData).reshape(imgSize, imgSize));
         const result = cv.matFromArray(
           imgSize * scale,
           imgSize * scale,
@@ -142,27 +168,37 @@ export default function GeneratorPage() {
         const steps: number[] = [currentPin];
         const lastPins: number[] = [];
 
+        generatorInnerTimeout.current = setTimeout(recursiveFn, 0);
         function recursiveFn() {
           if (i >= maxLines) {
-            //finalise
-            console.log('Рисование закончено', steps);
-            const ctx = canvas.getContext('2d')!;
-            GeneratorService.cropCircle(ctx, canvas.height);
-            canvas.toBlob((blob) => {
-              if (!blob) {
-                console.error('Unable to create blob from finished img');
-                return;
-              }
-              const strSteps = steps.map((s) =>
-                GeneratorService.pinToStr(s, pinCount)
-              );
-              console.log(strSteps);
-              dispatch(setSteps(strSteps));
-              dispatch(setFinishedImg(blob));
-              setPending(false);
-            });
+            if (layerIdx + 1 >= layers.length) {
+              //finalise
+              console.log('Рисование закончено', steps);
+              const ctx = canvas.getContext('2d')!;
+              GeneratorService.cropCircle(ctx, canvas.height);
+              canvas.toBlob((blob) => {
+                if (!blob) {
+                  console.error('Unable to create blob from finished img');
+                  return;
+                }
+                const strSteps = steps.map((s) =>
+                  GeneratorService.pinToStr(s, pinCount)
+                );
+                console.log(strSteps);
+                dispatch(setSteps(strSteps));
+                dispatch(setFinishedImg(blob));
+                setPending(false);
+              });
+              return;
+            }
+
+            layerIdx++;
+            generatorTimeout.current = setTimeout(() => {
+              // drawLines();
+            }, 0);
             return;
           }
+
           if (i % 10 === 0) {
             //draw
             const dsize = new cv.Size(imgSize * 2, imgSize * 2);
@@ -171,6 +207,7 @@ export default function GeneratorPage() {
             cv.imshow(canvas, dst);
             dst.delete();
           }
+
           let maxError = -1,
             bestPin = -1;
           for (
@@ -215,15 +252,11 @@ export default function GeneratorPage() {
           const y1 = coords[bestPin][1];
           const ptNext = new cv.Point(x1 * scale, y1 * scale);
 
-          let color: number[] = [];
-          color = [0, 0, 0];
-          // color = [130, 255, 255];
-
           cv.line(
             result,
             ptCur,
             ptNext,
-            new cv.Scalar(...color),
+            new cv.Scalar(...colorRgb),
             Math.floor(lineWeight / 10),
             cv.LINE_AA,
             0
@@ -238,11 +271,8 @@ export default function GeneratorPage() {
           currentPin = bestPin;
           i++;
 
-          if (generatorTimeout.current) {
-            generatorTimeout.current = setTimeout(recursiveFn, 0);
-          }
+          generatorInnerTimeout.current = setTimeout(recursiveFn, 0);
         }
-        recursiveFn();
       }
     }, 0);
   });

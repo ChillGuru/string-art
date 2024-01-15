@@ -11,11 +11,6 @@ export type GeneratorState = {
   currentStep: number;
 };
 
-export type LayerData = {
-  color: [number, number, number];
-  steps: string[];
-};
-
 const initialState: GeneratorState = {
   // layers: {},
   layers: [],

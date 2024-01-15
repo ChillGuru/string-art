@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { OpenCV } from '@/helpers/openCv';
+
 export const generatorFormSchema = z.object({
   mode: z.enum(['bw', 'color']).default('bw'),
   maxLines: z.number().default(3200 - 1),
@@ -20,4 +22,17 @@ export type LineResult = {
   lineCacheY: number[][];
   lineCacheLength: number[];
   lineCacheWeight: number[];
+};
+
+export type AssemblyLayerData = {
+  color: string;
+  colorRgb: [number, number, number];
+  steps: string[];
+  currentStep: number;
+};
+
+export type GeneratorLayerData = {
+  color: string;
+  colorRgb: [number, number, number];
+  layerImgData: number[];
 };
