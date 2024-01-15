@@ -5,7 +5,7 @@ type Props = {
   backUrl: string;
 };
 
-export function BackButton(props: Props) {
+export function BackButton({ backUrl }: Props) {
   const router = useIonRouter();
   return (
     <IonButton
@@ -14,11 +14,12 @@ export function BackButton(props: Props) {
       shape='round'
       fill='outline'
       onClick={() => {
-        if (props.backUrl) {
-          router.push(props.backUrl, 'back', 'replace');
+        router.goBack();
+        return;
+        if (backUrl) {
+          router.push(backUrl, 'back', 'replace', { unmount: true });
           return;
         }
-        router.goBack();
       }}
     >
       <IonIcon slot='icon-only' size='large' icon={chevronBack} />

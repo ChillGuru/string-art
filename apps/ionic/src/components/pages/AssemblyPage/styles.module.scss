@@ -1,0 +1,108 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  flex: auto 1 1;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+}
+
+.step {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 2rem;
+}
+
+.currentStep {
+  aspect-ratio: 1/1;
+  height: 260px;
+  max-width: 100%;
+  color: var(--ion-color-light);
+  border-radius: 50%;
+  position: relative;
+
+  &Text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+
+    background: var(--ion-color-dark);
+    border-radius: 50%;
+    width: 45%;
+    height: 45%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 4rem;
+  }
+}
+
+.slice {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  transition: transform 300ms;
+
+  &Segment {
+    position: absolute;
+    width: 50%;
+    height: 50%;
+    border: 2px var(--ion-color-dark) solid;
+    border-radius: 10px;
+
+    top: 0;
+    left: 0;
+    border-top-left-radius: 100%;
+  }
+  &TopLeft {
+    transform: rotate(0deg);
+  }
+  &TopRight {
+    transform: rotate(90deg);
+  }
+  &BottomRight {
+    transform: rotate(180deg);
+  }
+  &BottomLeft {
+    transform: rotate(270deg);
+  }
+}
+
+.footer {
+  flex: auto 0 0;
+
+  padding: 6px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.footerGroup {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.footerMainGroup {
+  width: 100%;
+  height: 6rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}

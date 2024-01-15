@@ -6,6 +6,7 @@ import {
   IonRadio,
   IonRadioGroup,
   IonSpinner,
+  useIonRouter,
 } from '@ionic/react';
 import { downloadOutline, refreshOutline } from 'ionicons/icons';
 import { useOpenCv } from 'opencv-react-ts';
@@ -18,6 +19,7 @@ import { LoadingBody } from '@/components/Layout/LoadingBody';
 import { OpenCV } from '@/helpers/openCv';
 import {
   GeneratorForm,
+  LineResult,
   Tuple,
   generatorFormSchema,
 } from '@/modules/Generator/models';
@@ -29,6 +31,7 @@ import { RootState } from '@/redux/store';
 import styles from './styles.module.scss';
 
 export default function GeneratorPage() {
+  const router = useIonRouter();
   const { loaded, cv } = useOpenCv();
 
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -62,57 +65,53 @@ export default function GeneratorPage() {
       console.log('Canvas not specified');
       return;
     }
-    if (data.type === 'color') {
+    if (data.mode === 'color') {
       console.error('Цветные картинки не поддерживаются');
       return;
     }
     console.log(data);
     setPending(true);
+
     const canvasCur = canvas.current;
+    const IMG_SIZE = GeneratorService.getImgSize(canvasCur);
+
+    const coords = GeneratorService.calculatePinCoords(data.pinCount, IMG_SIZE);
+    console.log('Координаты высчитаны');
+
+    const lineRes = GeneratorService.calculateLines(
+      data.pinCount,
+      data.minInterval,
+      coords
+    );
+    console.log('Линии высчитаны');
+
     generatorTimeout.current = setTimeout(() => {
-      const IMG_SIZE = GeneratorService.getImgSize(canvasCur);
-      const ctx = canvasCur.getContext('2d')!;
-      const R = nj.ones([IMG_SIZE, IMG_SIZE]).multiply(255); // ?
-      const rData: number[] = []; // ?
-      // make image black & white
-      const imgPixels = ctx.getImageData(0, 0, IMG_SIZE, IMG_SIZE);
-      for (let y = 0; y < imgPixels.height; y++) {
-        for (let x = 0; x < imgPixels.width; x++) {
-          const idx = x * 4 + y * 4 * imgPixels.width;
-          let avg =
-            imgPixels.data[idx] +
-            imgPixels.data[idx + 1] +
-            imgPixels.data[idx + 2];
-          avg /= 3;
-          imgPixels.data[idx] = avg;
-          imgPixels.data[idx + 1] = avg;
-          imgPixels.data[idx + 2] = avg;
-          rData.push(avg);
-        }
-      }
-      R.selection.data = rData;
-      ctx.clearRect(0, 0, IMG_SIZE, IMG_SIZE);
-      ctx.putImageData(imgPixels, 0, 0, 0, 0, IMG_SIZE, IMG_SIZE);
+      const imgMat = cv.imread(canvasCur);
+      const grayscaleImgMat = new cv.Mat();
+      cv.cvtColor(imgMat, grayscaleImgMat, cv.COLOR_RGB2GRAY);
 
-      const coords = GeneratorService.calculatePinCoords(
-        data.pinCount,
-        IMG_SIZE
+      // const ctx = canvasCur.getContext('2d')!;
+      // const imgPixels = ctx.getImageData(0, 0, IMG_SIZE, IMG_SIZE);
+      // const imgData = GeneratorService.makeGrayscale(imgPixels);
+      // ctx.clearRect(0, 0, IMG_SIZE, IMG_SIZE);
+      // ctx.putImageData(imgPixels, 0, 0, 0, 0, IMG_SIZE, IMG_SIZE);
+
+      drawLines(
+        cv,
+        canvasCur,
+        coords,
+        IMG_SIZE,
+        lineRes,
+        grayscaleImgMat.data,
+        data
       );
-      console.log('Координаты высчитаны');
-
-      const lineRes = GeneratorService.calculateLines(
-        data.pinCount,
-        data.minInterval,
-        coords
-      );
-      console.log('Линии высчитаны');
-
-      drawLines(cv, canvasCur, coords, IMG_SIZE, data);
       function drawLines(
         cv: OpenCV,
         canvas: HTMLCanvasElement,
         coords: Tuple[],
         imgSize: number,
+        lineResult: LineResult,
+        imgData: number[],
         {
           pinCount,
           scale,
@@ -125,16 +124,15 @@ export default function GeneratorPage() {
         const error = nj
           .ones([imgSize, imgSize])
           .multiply(255)
-          .subtract(
-            nj.uint8(R.selection.data as number[]).reshape(imgSize, imgSize)
-          );
-        const arr = nj.ones([imgSize * scale, imgSize * scale]).multiply(255);
+          .subtract(nj.uint8(imgData).reshape(imgSize, imgSize));
         const result = cv.matFromArray(
           imgSize * scale,
           imgSize * scale,
-          cv.CV_8UC1,
-          arr.selection.data
+          cv.CV_8UC3,
+          []
         );
+        // fill result with white
+        result.setTo(new cv.Scalar(255, 255, 255));
         // const imgResult = nj.ones([imgSize, imgSize]).multiply(255);
         // const lineMask = nj.zeros([imgSize, imgSize], 'float64');
 
@@ -150,7 +148,6 @@ export default function GeneratorPage() {
             console.log('Рисование закончено', steps);
             const ctx = canvas.getContext('2d')!;
             GeneratorService.cropCircle(ctx, canvas.height);
-
             canvas.toBlob((blob) => {
               if (!blob) {
                 console.error('Unable to create blob from finished img');
@@ -185,22 +182,22 @@ export default function GeneratorPage() {
             if (lastPins.includes(testPin)) {
               continue;
             }
-            const xs = lineRes.lineCacheX[testPin * pinCount + currentPin];
-            const ys = lineRes.lineCacheY[testPin * pinCount + currentPin];
+            const xs = lineResult.lineCacheX[testPin * pinCount + currentPin];
+            const ys = lineResult.lineCacheY[testPin * pinCount + currentPin];
             const lineErr =
               GeneratorService.getLineErr(error, ys, xs) *
-              lineRes.lineCacheWeight[testPin * pinCount + currentPin];
+              lineResult.lineCacheWeight[testPin * pinCount + currentPin];
             if (lineErr > maxError) {
               maxError = lineErr;
               bestPin = testPin;
             }
           }
           steps.push(bestPin);
-          const xs = lineRes.lineCacheX[bestPin * pinCount + currentPin];
-          const ys = lineRes.lineCacheY[bestPin * pinCount + currentPin];
+          const xs = lineResult.lineCacheX[bestPin * pinCount + currentPin];
+          const ys = lineResult.lineCacheY[bestPin * pinCount + currentPin];
           const weight =
             lineWeight *
-            lineRes.lineCacheWeight[bestPin * pinCount + currentPin];
+            lineResult.lineCacheWeight[bestPin * pinCount + currentPin];
 
           const lineMask = GeneratorService.createLine(
             nj.zeros([imgSize, imgSize], 'float64'),
@@ -218,11 +215,15 @@ export default function GeneratorPage() {
           const y1 = coords[bestPin][1];
           const ptNext = new cv.Point(x1 * scale, y1 * scale);
 
+          let color: number[] = [];
+          color = [0, 0, 0];
+          // color = [130, 255, 255];
+
           cv.line(
             result,
             ptCur,
             ptNext,
-            new cv.Scalar(0, 0, 0),
+            new cv.Scalar(...color),
             Math.floor(lineWeight / 10),
             cv.LINE_AA,
             0
@@ -236,7 +237,10 @@ export default function GeneratorPage() {
           }
           currentPin = bestPin;
           i++;
-          generatorTimeout.current = setTimeout(recursiveFn, 0);
+
+          if (generatorTimeout.current) {
+            generatorTimeout.current = setTimeout(recursiveFn, 0);
+          }
         }
         recursiveFn();
       }
@@ -280,9 +284,8 @@ export default function GeneratorPage() {
   }, [cv, croppedImgUrl, finishedImgUrl]);
 
   useEffect(() => {
-    const timeoutId = generatorTimeout.current;
     return () => {
-      clearTimeout(timeoutId);
+      clearTimeout(generatorTimeout.current);
     };
   }, []);
 
@@ -315,7 +318,7 @@ export default function GeneratorPage() {
               <IonRadio
                 labelPlacement='end'
                 value={'bw'}
-                {...generatorForm.register('type')}
+                {...generatorForm.register('mode')}
               >
                 Чёрно-белый
               </IonRadio>
@@ -323,7 +326,7 @@ export default function GeneratorPage() {
                 labelPlacement='end'
                 disabled
                 value={'color'}
-                {...generatorForm.register('type')}
+                {...generatorForm.register('mode')}
               >
                 Цветной
               </IonRadio>
@@ -345,7 +348,14 @@ export default function GeneratorPage() {
           )}
           {genState === 'finished' && (
             <>
-              <IonButton type='button' size='large' shape='round'>
+              <IonButton
+                type='button'
+                size='large'
+                shape='round'
+                onClick={() => {
+                  router.push('/app/assembly', 'forward');
+                }}
+              >
                 Плести
               </IonButton>
               <IonButton

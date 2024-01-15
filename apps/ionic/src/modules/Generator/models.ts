@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 export const generatorFormSchema = z.object({
-  type: z.enum(['bw', 'color']).default('bw'),
-  maxLines: z.number().default(3500),
+  mode: z.enum(['bw', 'color']).default('bw'),
+  maxLines: z.number().default(3200 - 1),
   pinCount: z.number().default(240),
   hoopDiameter: z.number().default(0.625),
   lineWeight: z.number().default(20),
@@ -11,6 +11,7 @@ export const generatorFormSchema = z.object({
 });
 
 export type GeneratorForm = z.infer<typeof generatorFormSchema>;
+export type GeneratorMode = GeneratorForm['mode'];
 
 export type Tuple = [number, number];
 

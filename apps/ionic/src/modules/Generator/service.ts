@@ -1,6 +1,6 @@
 import { NdArray } from '@d4c/numjs';
 
-import { LineResult, Tuple } from './models';
+import { GeneratorMode, LineResult, Tuple } from './models';
 
 const quarterLetters = ['A', 'B', 'C', 'D'];
 
@@ -17,6 +17,10 @@ export const GeneratorService = {
     const quarterIdx = Math.floor(pin / pinsInQuarter);
     const pinIdx = (pin % pinsInQuarter) + 1;
     return quarterLetters[quarterIdx] + pinIdx;
+  },
+
+  pinToQuarter(pin: string): number {
+    return quarterLetters.indexOf(pin[0]);
   },
 
   getNewObjectUrl<T extends Blob>(current?: string, newFile?: T) {
@@ -132,8 +136,24 @@ export const GeneratorService = {
     return arrAMut;
   },
 
-  makeGrayscale() {
-    throw new Error('Not implemented');
+  /** @deprecated */
+  makeGrayscale(imgPixelsMut: ImageData) {
+    const imgData: number[] = [];
+    for (let y = 0; y < imgPixelsMut.height; y++) {
+      for (let x = 0; x < imgPixelsMut.width; x++) {
+        const idx = x * 4 + y * 4 * imgPixelsMut.width;
+        let avg =
+          imgPixelsMut.data[idx] +
+          imgPixelsMut.data[idx + 1] +
+          imgPixelsMut.data[idx + 2];
+        avg /= 3;
+        imgPixelsMut.data[idx] = avg;
+        imgPixelsMut.data[idx + 1] = avg;
+        imgPixelsMut.data[idx + 2] = avg;
+        imgData.push(avg);
+      }
+    }
+    return imgData;
   },
 
   cropCircle(ctx: CanvasRenderingContext2D, imgSize: number) {
@@ -142,5 +162,19 @@ export const GeneratorService = {
     ctx.arc(imgSize / 2, imgSize / 2, imgSize / 2, 0, Math.PI * 2);
     ctx.closePath();
     ctx.fill();
+  },
+
+  getLayersForMode(mode: GeneratorMode) {
+    switch (mode) {
+      case 'bw': {
+        return { layers: [] };
+      }
+      case 'color': {
+        throw new Error('Invalid mode');
+      }
+      default: {
+        throw new Error('Invalid mode');
+      }
+    }
   },
 } as const;
