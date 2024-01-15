@@ -215,9 +215,9 @@ export default function GeneratorPage() {
           const y1 = coords[bestPin][1];
           const ptNext = new cv.Point(x1 * scale, y1 * scale);
 
-          let color: number[];
-          // color = [0, 0, 0];
-          color = [130, 255, 255];
+          let color: number[] = [];
+          color = [0, 0, 0];
+          // color = [130, 255, 255];
 
           cv.line(
             result,
