@@ -18,7 +18,6 @@ import { BackButton } from '@/components/BackButton';
 import { LoadingBody } from '@/components/Layout/LoadingBody';
 import { OpenCV } from '@/helpers/openCv';
 import {
-  AssemblyLayerData,
   GeneratorForm,
   GeneratorLayerData,
   LineResult,
@@ -68,10 +67,10 @@ export default function GeneratorPage() {
       console.log('Canvas not specified');
       return;
     }
-    if (formData.mode === 'color') {
-      console.error('Цветные картинки не поддерживаются');
-      return;
-    }
+    // if (formData.mode === 'color') {
+    //   console.error('Цветные картинки не поддерживаются');
+    //   return;
+    // }
     console.log(formData);
     setPending(true);
 
@@ -94,6 +93,7 @@ export default function GeneratorPage() {
     setTimeout(() => {
       const imgMat = cv.imread(canvasCur);
       const layers: GeneratorLayerData[] = [];
+
       switch (formData.mode) {
         case 'bw': {
           const grayscaleImgMat = new cv.Mat();
@@ -105,7 +105,51 @@ export default function GeneratorPage() {
           });
           break;
         }
-        // [130, 255, 255] [255,130,255] [255,255,130]
+        case 'color': {
+          // basically this
+          // https://gist.github.com/wyudong/9c392578c6247e7d1d28
+          const rgb = new cv.MatVector();
+          cv.split(imgMat, rgb);
+
+          const rLayer = rgb.get(0);
+          const gLayer = rgb.get(1);
+          const bLayer = rgb.get(2);
+
+          const cmykAsRgbLayers = Array.from({ length: 4 }, () => new cv.Mat());
+          cmykAsRgbLayers.forEach((l) =>
+            l.create(imgMat.rows, imgMat.cols, cv.CV_8UC3)
+          );
+
+          // loop over image and convert each pixel
+          for (let i = 0; i < imgMat.rows; i++) {
+            for (let j = 0; j < imgMat.cols; j++) {
+              const r = rLayer.ptr(i, j)[0];
+              const g = gLayer.ptr(i, j)[0];
+              const b = bLayer.ptr(i, j)[0];
+
+              const [c, m, y, k] = GeneratorService.rgb2cmyk(r, g, b);
+              const cAsRgb = GeneratorService.cmyk2rgb(c, 0, 0, 0);
+              const mAsRgb = GeneratorService.cmyk2rgb(0, m, 0, 0);
+              const yAsRgb = GeneratorService.cmyk2rgb(0, 0, y, 0);
+              const kAsRgb = GeneratorService.cmyk2rgb(0, 0, 0, k);
+
+              for (let n = 0; n < 3; n++) {
+                cmykAsRgbLayers[0].ptr(i, j)[n] = cAsRgb[n];
+                cmykAsRgbLayers[1].ptr(i, j)[n] = mAsRgb[n];
+                cmykAsRgbLayers[2].ptr(i, j)[n] = yAsRgb[n];
+                cmykAsRgbLayers[3].ptr(i, j)[n] = kAsRgb[n];
+              }
+            }
+          }
+
+          cv.imshow(canvasCur, cmykAsRgbLayers[3]);
+
+          throw new Error('Not implemented');
+          // [130,255,255] cyan
+          // [255,130,255] magenta
+          // [255,255,130] yellow
+          break;
+        }
         default:
           throw new Error('Invalid generator mode');
       }
@@ -328,7 +372,7 @@ export default function GeneratorPage() {
     return <Redirect to='/app/crop' />;
   }
 
-  if (!loaded) {
+  if (!loaded || !cv) {
     return <LoadingBody />;
   }
 
@@ -354,7 +398,6 @@ export default function GeneratorPage() {
               </IonRadio>
               <IonRadio
                 labelPlacement='end'
-                disabled
                 value={'color'}
                 {...generatorForm.register('mode')}
               >
