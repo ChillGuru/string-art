@@ -34,5 +34,5 @@ export type AssemblyLayerData = {
 export type GeneratorLayerData = {
   color: string;
   colorRgb: [number, number, number];
-  layerImgData: number[];
+  layerImgData: Uint8Array;
 };

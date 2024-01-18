@@ -98,10 +98,11 @@ export default function GeneratorPage() {
         case 'bw': {
           const grayscaleImgMat = new cv.Mat();
           cv.cvtColor(imgMat, grayscaleImgMat, cv.COLOR_RGB2GRAY);
+
           layers.push({
             color: 'black',
             colorRgb: [0, 0, 0],
-            layerImgData: grayscaleImgMat.data,
+            layerImgData: new Uint8Array(grayscaleImgMat.data),
           });
           break;
         }
@@ -116,16 +117,16 @@ export default function GeneratorPage() {
           const bLayer = rgb.get(2);
 
           const cmykAsRgbLayers = Array.from({ length: 4 }, () => new cv.Mat());
-          cmykAsRgbLayers.forEach((l) =>
-            l.create(imgMat.rows, imgMat.cols, cv.CV_8UC3)
+          cmykAsRgbLayers.forEach((layer) =>
+            layer.create(imgMat.rows, imgMat.cols, cv.CV_8UC3)
           );
 
           // loop over image and convert each pixel
           for (let i = 0; i < imgMat.rows; i++) {
             for (let j = 0; j < imgMat.cols; j++) {
-              const r = rLayer.ptr(i, j)[0];
-              const g = gLayer.ptr(i, j)[0];
-              const b = bLayer.ptr(i, j)[0];
+              const r = rLayer.ucharPtr(i, j)[0];
+              const g = gLayer.ucharPtr(i, j)[0];
+              const b = bLayer.ucharPtr(i, j)[0];
 
               const [c, m, y, k] = GeneratorService.rgb2cmyk(r, g, b);
               const cAsRgb = GeneratorService.cmyk2rgb(c, 0, 0, 0);
@@ -134,20 +135,53 @@ export default function GeneratorPage() {
               const kAsRgb = GeneratorService.cmyk2rgb(0, 0, 0, k);
 
               for (let n = 0; n < 3; n++) {
-                cmykAsRgbLayers[0].ptr(i, j)[n] = cAsRgb[n];
-                cmykAsRgbLayers[1].ptr(i, j)[n] = mAsRgb[n];
-                cmykAsRgbLayers[2].ptr(i, j)[n] = yAsRgb[n];
-                cmykAsRgbLayers[3].ptr(i, j)[n] = kAsRgb[n];
+                cmykAsRgbLayers[0].ucharPtr(i, j)[n] = cAsRgb[n];
+                cmykAsRgbLayers[1].ucharPtr(i, j)[n] = mAsRgb[n];
+                cmykAsRgbLayers[2].ucharPtr(i, j)[n] = yAsRgb[n];
+                cmykAsRgbLayers[3].ucharPtr(i, j)[n] = kAsRgb[n];
               }
             }
           }
 
-          cv.imshow(canvasCur, cmykAsRgbLayers[3]);
+          const cmykAsGrayLayers = Array.from(
+            { length: 4 },
+            () => new cv.Mat()
+          );
+          for (let i = 0; i < cmykAsRgbLayers.length; i++) {
+            cv.cvtColor(
+              cmykAsRgbLayers[i],
+              cmykAsGrayLayers[i],
+              cv.COLOR_RGB2GRAY
+            );
+            cmykAsRgbLayers[i].delete();
+          }
 
-          throw new Error('Not implemented');
-          // [130,255,255] cyan
-          // [255,130,255] magenta
-          // [255,255,130] yellow
+          layers.push(
+            {
+              color: 'black',
+              colorRgb: [0, 0, 0],
+              // this prevents a dangling pointer
+              layerImgData: new Uint8Array(cmykAsGrayLayers[3].data),
+            },
+            {
+              color: 'cyan',
+              colorRgb: [130, 255, 255],
+              layerImgData: new Uint8Array(cmykAsGrayLayers[0].data),
+            },
+            {
+              color: 'magenta',
+              colorRgb: [255, 130, 255],
+              layerImgData: new Uint8Array(cmykAsGrayLayers[1].data),
+            },
+            {
+              color: 'yellow',
+              colorRgb: [255, 255, 130],
+              layerImgData: new Uint8Array(cmykAsGrayLayers[2].data),
+            }
+          );
+
+          rgb.delete();
+          cmykAsGrayLayers.forEach((l) => l.delete());
           break;
         }
         default:
@@ -194,6 +228,7 @@ export default function GeneratorPage() {
         const error = nj
           .ones([imgSize, imgSize])
           .multiply(255)
+          //@ts-ignore
           .subtract(nj.uint8(layerImgData).reshape(imgSize, imgSize));
         const result = cv.matFromArray(
           imgSize * scale,
@@ -238,7 +273,15 @@ export default function GeneratorPage() {
 
             layerIdx++;
             generatorTimeout.current = setTimeout(() => {
-              // drawLines();
+              drawLines(
+                cv,
+                canvasCur,
+                coords,
+                IMG_SIZE,
+                lineRes,
+                layers[layerIdx],
+                formData
+              );
             }, 0);
             return;
           }
