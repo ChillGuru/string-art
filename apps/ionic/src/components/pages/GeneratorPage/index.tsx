@@ -18,8 +18,10 @@ import { BackButton } from '@/components/BackButton';
 import { LoadingBody } from '@/components/Layout/LoadingBody';
 import { OpenCV } from '@/helpers/openCv';
 import {
+  AssemblyLayerData,
   GeneratorForm,
   GeneratorLayerData,
+  GeneratorMode,
   LineResult,
   Tuple,
   generatorFormSchema,
@@ -30,6 +32,11 @@ import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { RootState } from '@/redux/store';
 
 import styles from './styles.module.scss';
+
+const modeCssFilters: Record<GeneratorMode, string> = {
+  bw: styles.grayscale,
+  color: '',
+};
 
 export default function GeneratorPage() {
   const router = useIonRouter();
@@ -90,7 +97,7 @@ export default function GeneratorPage() {
     );
     console.log('Линии высчитаны');
 
-    setTimeout(() => {
+    generatorTimeout.current = setTimeout(() => {
       const imgMat = cv.imread(canvasCur);
       const layers: GeneratorLayerData[] = [];
 
@@ -195,6 +202,7 @@ export default function GeneratorPage() {
       // ctx.putImageData(imgPixels, 0, 0, 0, 0, IMG_SIZE, IMG_SIZE);
 
       let layerIdx = 0;
+      const resLayers: Record<string, AssemblyLayerData> = {};
       generatorTimeout.current = setTimeout(() => {
         drawLines(
           cv,
@@ -217,6 +225,7 @@ export default function GeneratorPage() {
       ) {
         const { color, colorRgb, layerImgData } = layerData;
         const {
+          mode,
           pinCount,
           scale,
           maxLines,
@@ -250,19 +259,81 @@ export default function GeneratorPage() {
         generatorInnerTimeout.current = setTimeout(recursiveFn, 0);
         function recursiveFn() {
           if (i >= maxLines) {
+            // save layer
+            const resultMat = cv.imread(canvas);
+            const strSteps = steps.map((s) =>
+              GeneratorService.pinToStr(s, pinCount)
+            );
+            console.log(`Рисование слоя ${layerIdx} закончено`, steps);
+            resLayers[color] = {
+              color,
+              colorRgb,
+              steps: strSteps,
+              currentStep: 0,
+              layerImgData: new Uint8Array(resultMat.data),
+            };
+            resultMat.delete();
+
             if (layerIdx + 1 >= layers.length) {
-              //finalise
-              console.log('Рисование закончено', steps);
+              // finalise
               const ctx = canvas.getContext('2d')!;
+              const resSize = imgSize * 2;
+
+              switch (mode) {
+                case 'bw': {
+                  const bwLayer = resLayers['black'];
+                  const mat = cv.matFromArray(
+                    resSize,
+                    resSize,
+                    cv.CV_8UC4,
+                    bwLayer.layerImgData
+                  );
+                  cv.cvtColor(mat, mat, cv.COLOR_RGBA2RGB);
+                  cv.imshow(canvas, mat);
+                  break;
+                }
+                case 'color': {
+                  const cmykMats = [new cv.Mat()];
+                  cmykMats[0].delete();
+                  cmykMats.pop();
+
+                  for (const color of ['cyan', 'magenta', 'yellow', 'black']) {
+                    const mat = cv.matFromArray(
+                      resSize,
+                      resSize,
+                      cv.CV_8UC4,
+                      resLayers[color].layerImgData
+                    );
+                    cv.cvtColor(mat, mat, cv.COLOR_RGBA2RGB);
+                    cmykMats.push(mat);
+                  }
+
+                  // const combinedMat = cv.matFromArray(
+                  //   resSize,
+                  //   resSize,
+                  //   cv.CV_8UC3,
+                  //   []
+                  // );
+                  // combinedMat.setTo(new cv.Scalar(255, 255, 255));
+                  const combinedMat = cmykMats[0];
+                  for (let i = 1; i < cmykMats.length; i++) {
+                    cv.multiply(combinedMat, cmykMats[i], combinedMat);
+                  }
+                  // TODO fix this
+                  // convert 255-0 -> 1.0f-0.0f
+                  cv.imshow(canvas, combinedMat);
+                  break;
+                }
+                default:
+                  throw new Error('Неверный режим генератора');
+              }
+
               GeneratorService.cropCircle(ctx, canvas.height);
               canvas.toBlob((blob) => {
                 if (!blob) {
                   console.error('Unable to create blob from finished img');
                   return;
                 }
-                const strSteps = steps.map((s) =>
-                  GeneratorService.pinToStr(s, pinCount)
-                );
                 console.log(strSteps);
                 dispatch(setSteps(strSteps));
                 dispatch(setFinishedImg(blob));
@@ -403,6 +474,7 @@ export default function GeneratorPage() {
   useEffect(() => {
     return () => {
       clearTimeout(generatorTimeout.current);
+      clearTimeout(generatorInnerTimeout.current);
     };
   }, []);
 
@@ -425,7 +497,7 @@ export default function GeneratorPage() {
         Шаг 3<br />
         Начинаем генерацию образца
       </h1>
-      <canvas ref={canvas} className={styles.imgDisplay} />
+      <canvas ref={canvas} className={[styles.imgDisplay].join(' ')} />
       <form onSubmit={onSubmit} className={styles.form}>
         {genState === 'finished' && <h2>Образец готов!</h2>}
         {genState === 'idle' && (

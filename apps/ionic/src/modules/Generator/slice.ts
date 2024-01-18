@@ -1,19 +1,20 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
+import { AssemblyLayerData } from './models';
 import { GeneratorService } from './service';
 
 export type GeneratorState = {
   imgUrl?: string;
   croppedImgUrl?: string;
   finishedImgUrl?: string;
-  // layers: Record<string, LayerData>;
-  layers: string[];
+  layers: Record<string, AssemblyLayerData>;
+  steps: string[];
   currentStep: number;
 };
 
 const initialState: GeneratorState = {
-  // layers: {},
-  layers: [],
+  layers: {},
+  steps: [],
   currentStep: 0,
 };
 
@@ -37,14 +38,14 @@ export const generatorSlice = createSlice({
       );
     },
     setSteps(state, { payload }: PayloadAction<string[]>) {
-      state.layers = payload;
+      state.steps = payload;
     },
     stepBack(state) {
       state.currentStep = Math.max(0, state.currentStep - 1);
     },
     stepForward(state) {
       state.currentStep = Math.min(
-        state.layers.length - 1,
+        state.steps.length - 1,
         state.currentStep + 1
       );
     },

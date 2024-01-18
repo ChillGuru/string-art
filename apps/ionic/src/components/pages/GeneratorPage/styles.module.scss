@@ -20,6 +20,10 @@
   flex: auto 0 0;
 }
 
+.grayscale {
+  filter: grayscale(100%);
+}
+
 .form {
   width: 100%;
 

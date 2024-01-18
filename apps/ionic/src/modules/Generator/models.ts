@@ -29,6 +29,7 @@ export type AssemblyLayerData = {
   colorRgb: [number, number, number];
   steps: string[];
   currentStep: number;
+  layerImgData: Uint8Array;
 };
 
 export type GeneratorLayerData = {
