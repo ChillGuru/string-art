@@ -57,14 +57,18 @@ export default function GeneratorPage() {
   const dispatch = useAppDispatch();
 
   const [pending, setPending] = useState(false);
-
-  function resetGenerator() {
-    dispatch(setFinishedImg(undefined));
-  }
+  const [curLayer, setCurLayer] = useState(0);
+  const [maxLayer, setMaxLayer] = useState(0);
 
   const generatorForm = useForm<GeneratorForm>({
     resolver: zodResolver(generatorFormSchema),
   });
+
+  function resetGenerator() {
+    dispatch(setFinishedImg(undefined));
+    generatorForm.setValue('mode', 'bw');
+  }
+
   const onSubmit = generatorForm.handleSubmit((formData) => {
     if (!cv) {
       console.log('OpenCV not loaded yet');
@@ -196,6 +200,7 @@ export default function GeneratorPage() {
           throw new Error('Invalid generator mode');
       }
       imgMat.delete();
+      setMaxLayer(layers.length);
 
       // const ctx = canvasCur.getContext('2d')!;
       // const imgPixels = ctx.getImageData(0, 0, IMG_SIZE, IMG_SIZE);
@@ -206,6 +211,7 @@ export default function GeneratorPage() {
       let layerIdx = 0;
       const resLayers: Record<string, AssemblyLayerData> = {};
       generatorTimeout.current = setTimeout(() => {
+        setCurLayer(layerIdx);
         drawLines(
           cv,
           canvasCur,
@@ -366,6 +372,7 @@ export default function GeneratorPage() {
 
             layerIdx++;
             generatorTimeout.current = setTimeout(() => {
+              setCurLayer(layerIdx);
               drawLines(
                 cv,
                 canvasCur,
@@ -500,10 +507,7 @@ export default function GeneratorPage() {
     };
   }, []);
 
-  const genState = GeneratorService.getGeneratorState(
-    pending,
-    !!finishedImgUrl
-  );
+  let genState = GeneratorService.getGeneratorState(pending, !!finishedImgUrl);
 
   if (!croppedImgUrl) {
     return <Redirect to='/app/crop' />;
@@ -513,6 +517,8 @@ export default function GeneratorPage() {
     return <LoadingBody />;
   }
 
+  // genState = 'pending';
+
   return (
     <main className={styles.main}>
       <h1>
@@ -521,11 +527,16 @@ export default function GeneratorPage() {
       </h1>
       <canvas ref={canvas} className={[styles.imgDisplay].join(' ')} />
       <form onSubmit={onSubmit} className={styles.form}>
+        {genState === 'pending' && maxLayer > 0 && (
+          <h2>
+            Слой {curLayer + 1} / {maxLayer}
+          </h2>
+        )}
         {genState === 'finished' && <h2>Образец готов!</h2>}
         {genState === 'idle' && (
           <>
             <h2>Настройте параметры образца</h2>
-            <IonRadioGroup className={styles.radioGroup}>
+            <IonRadioGroup value={'bw'} className={styles.radioGroup}>
               <IonRadio
                 labelPlacement='end'
                 value={'bw'}

@@ -5,12 +5,12 @@ const config: CapacitorConfig = {
   appName: 'String Art',
   webDir: 'dist',
   server: {
-    hostname: 'localhost',
-    androidScheme: 'http',
+    hostname: 'string-art-io.vercel.app',
+    androidScheme: 'https',
   },
   plugins: {
     CapacitorHttp: {
-      enabled: true,
+      enabled: false,
     },
   },
 };
