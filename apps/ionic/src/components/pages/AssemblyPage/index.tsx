@@ -39,11 +39,11 @@ export function AssemblyPage() {
   const [curColor, setCurColor] = useState('black');
   const curLayer = layers[curColor];
 
-  type IntervalId = ReturnType<typeof setInterval>;
-  const playbackInterval = useRef<IntervalId | undefined>(undefined);
+  type TimeoutId = ReturnType<typeof setTimeout>;
+  const playbackTimeout = useRef<TimeoutId | undefined>(undefined);
 
   function timer(mul: number) {
-    playbackInterval.current = setTimeout(() => {
+    playbackTimeout.current = setTimeout(() => {
       dispatch(stepForward(curColor));
       timer(mul);
     }, 2000 / mul);
@@ -52,7 +52,7 @@ export function AssemblyPage() {
   function togglePlayback() {
     setPlaying((prev) => !prev);
     if (playing) {
-      clearInterval(playbackInterval.current);
+      clearTimeout(playbackTimeout.current);
       return;
     }
     timer(speedMultiplier);
@@ -62,7 +62,7 @@ export function AssemblyPage() {
     if (!playing) {
       return;
     }
-    clearInterval(playbackInterval.current);
+    clearTimeout(playbackTimeout.current);
     timer(mul);
   }
 
