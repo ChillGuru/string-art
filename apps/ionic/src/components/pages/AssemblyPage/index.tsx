@@ -50,12 +50,11 @@ export function AssemblyPage() {
   }
 
   function togglePlayback() {
-    setPlaying((prev) => !prev);
-    if (playing) {
-      clearTimeout(playbackTimeout.current);
-      return;
+    clearTimeout(playbackTimeout.current);
+    if (!playing) {
+      timer(speedMultiplier);
     }
-    timer(speedMultiplier);
+    setPlaying((prev) => !prev);
   }
 
   function changeSpeed(mul: number) {
@@ -131,6 +130,11 @@ export function AssemblyPage() {
         </div>
         <IonPicker
           trigger='pickSpeed'
+          onDidPresent={() => {
+            if (playing) {
+              togglePlayback();
+            }
+          }}
           buttons={[
             { text: 'Отмена', role: 'cancel' },
             {
@@ -156,6 +160,11 @@ export function AssemblyPage() {
         />
         <IonPicker
           trigger='pickColor'
+          onDidPresent={() => {
+            if (playing) {
+              togglePlayback();
+            }
+          }}
           buttons={[
             { text: 'Отмена', role: 'cancel' },
             {
