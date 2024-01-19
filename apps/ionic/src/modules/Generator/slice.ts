@@ -37,6 +37,9 @@ export const generatorSlice = createSlice({
         payload
       );
     },
+    setLayers(state, { payload }: PayloadAction<GeneratorState['layers']>) {
+      state.layers = payload;
+    },
     setSteps(state, { payload }: PayloadAction<string[]>) {
       state.steps = payload;
     },
@@ -56,6 +59,7 @@ export const {
   setImg,
   setCroppedImg,
   setFinishedImg,
+  setLayers,
   setSteps,
   stepBack,
   stepForward,

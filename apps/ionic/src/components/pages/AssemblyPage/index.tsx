@@ -3,6 +3,7 @@ import { pause, play, playBack, playForward } from 'ionicons/icons';
 import { useState } from 'react';
 import { Redirect } from 'react-router';
 
+import { Footer } from '@/components/Layout/Footer';
 import { Header } from '@/components/Layout/Header';
 import { GeneratorService } from '@/modules/Generator/service';
 import { stepBack, stepForward } from '@/modules/Generator/slice';
@@ -70,7 +71,7 @@ export function AssemblyPage() {
       </main>
       <footer className={styles.footer}>
         <div className={styles.footerGroup}>
-          Шаг: {curStep + 1}/{steps.length}
+          Шаг: {curStep} / {steps.length - 1}
         </div>
         <div className={styles.footerMainGroup}>
           <IonButton
@@ -111,7 +112,7 @@ export function AssemblyPage() {
             <IonIcon slot='icon-only' icon={playForward} />
           </IonButton>
         </div>
-        <div className={styles.footerGroup}>moment@art.ru</div>
+        <Footer />
       </footer>
     </div>
   );

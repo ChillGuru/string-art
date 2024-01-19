@@ -114,6 +114,7 @@ export default function GeneratorPage() {
             color: 'black',
             colorRgb: [0, 0, 0],
             layerImgData: new Uint8Array(grayscaleImgMat.data),
+            maxLines: formData.maxLines,
           });
           grayscaleImgMat.delete();
           break;
@@ -172,23 +173,27 @@ export default function GeneratorPage() {
             {
               color: 'black',
               colorRgb: [0, 0, 0],
-              // this prevents a dangling pointer
+              // copying the data to prevent a dangling pointer
               layerImgData: new Uint8Array(cmykAsGrayLayers[3].data),
+              maxLines: formData.maxLines,
             },
             {
               color: 'cyan',
               colorRgb: [130, 255, 255],
               layerImgData: new Uint8Array(cmykAsGrayLayers[0].data),
+              maxLines: formData.maxLines / 2,
             },
             {
               color: 'magenta',
               colorRgb: [255, 130, 255],
               layerImgData: new Uint8Array(cmykAsGrayLayers[1].data),
+              maxLines: formData.maxLines / 2,
             },
             {
               color: 'yellow',
               colorRgb: [255, 255, 130],
               layerImgData: new Uint8Array(cmykAsGrayLayers[2].data),
+              maxLines: formData.maxLines / 2,
             }
           );
 
@@ -231,16 +236,9 @@ export default function GeneratorPage() {
         layerData: GeneratorLayerData,
         formData: GeneratorForm
       ) {
-        const { color, colorRgb, layerImgData } = layerData;
-        const {
-          mode,
-          maxLines,
-          pinCount,
-          scale,
-          minInterval,
-          lineWeight,
-          hoopDiameter,
-        } = formData;
+        const { color, colorRgb, layerImgData, maxLines } = layerData;
+        const { mode, pinCount, scale, minInterval, lineWeight, hoopDiameter } =
+          formData;
 
         // let maxLines: number;
         // switch (mode) {
@@ -507,7 +505,10 @@ export default function GeneratorPage() {
     };
   }, []);
 
-  let genState = GeneratorService.getGeneratorState(pending, !!finishedImgUrl);
+  const genState = GeneratorService.getGeneratorState(
+    pending,
+    !!finishedImgUrl
+  );
 
   if (!croppedImgUrl) {
     return <Redirect to='/app/crop' />;
@@ -516,8 +517,6 @@ export default function GeneratorPage() {
   if (!loaded || !cv) {
     return <LoadingBody />;
   }
-
-  // genState = 'pending';
 
   return (
     <main className={styles.main}>

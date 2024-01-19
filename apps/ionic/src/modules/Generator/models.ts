@@ -2,8 +2,7 @@ import { z } from 'zod';
 
 export const generatorFormSchema = z.object({
   mode: z.enum(['bw', 'color']).default('bw'),
-  // the -1 offsets the initial step being counted
-  maxLines: z.number().default(2800 - 1),
+  maxLines: z.number().default(2800),
   pinCount: z.number().default(240),
   hoopDiameter: z.number().default(0.625),
   lineWeight: z.number().default(20),
@@ -35,4 +34,5 @@ export type GeneratorLayerData = {
   color: string;
   colorRgb: [number, number, number];
   layerImgData: Uint8Array;
+  maxLines: number;
 };
