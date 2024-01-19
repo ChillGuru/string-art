@@ -111,6 +111,7 @@ export default function GeneratorPage() {
             colorRgb: [0, 0, 0],
             layerImgData: new Uint8Array(grayscaleImgMat.data),
           });
+          grayscaleImgMat.delete();
           break;
         }
         case 'color': {
@@ -194,6 +195,7 @@ export default function GeneratorPage() {
         default:
           throw new Error('Invalid generator mode');
       }
+      imgMat.delete();
 
       // const ctx = canvasCur.getContext('2d')!;
       // const imgPixels = ctx.getImageData(0, 0, IMG_SIZE, IMG_SIZE);
@@ -226,13 +228,29 @@ export default function GeneratorPage() {
         const { color, colorRgb, layerImgData } = layerData;
         const {
           mode,
+          maxLines,
           pinCount,
           scale,
-          maxLines,
           minInterval,
           lineWeight,
           hoopDiameter,
         } = formData;
+
+        // let maxLines: number;
+        // switch (mode) {
+        //   case 'bw': {
+        //     maxLines = formData.maxLines;
+        //     break;
+        //   }
+        //   case 'color': {
+        //     maxLines = formData.maxLines + 1;
+        //     maxLines /= 2;
+        //     maxLines -= 1;
+        //     break;
+        //   }
+        //   default:
+        //     throw new Error('Неверный режим генератора');
+        // }
 
         const error = nj
           .ones([imgSize, imgSize])
@@ -273,6 +291,7 @@ export default function GeneratorPage() {
               layerImgData: new Uint8Array(resultMat.data),
             };
             resultMat.delete();
+            result.delete();
 
             if (layerIdx + 1 >= layers.length) {
               // finalise
@@ -290,13 +309,15 @@ export default function GeneratorPage() {
                   );
                   cv.cvtColor(mat, mat, cv.COLOR_RGBA2RGB);
                   cv.imshow(canvas, mat);
+                  mat.delete();
                   break;
                 }
                 case 'color': {
                   const cmykMats = [new cv.Mat()];
-                  cmykMats[0].delete();
-                  cmykMats.pop();
+                  cmykMats.pop()!.delete();
 
+                  // this is how you combine cmyk layers together
+                  // https://en.wikipedia.org/wiki/Blend_modes#Multiply
                   for (const color of ['cyan', 'magenta', 'yellow', 'black']) {
                     const mat = cv.matFromArray(
                       resSize,
@@ -305,23 +326,24 @@ export default function GeneratorPage() {
                       resLayers[color].layerImgData
                     );
                     cv.cvtColor(mat, mat, cv.COLOR_RGBA2RGB);
+                    // convert 0-255 values to 0.0f-1.0f
+                    mat.convertTo(mat, cv.CV_32FC3, 1 / 255);
                     cmykMats.push(mat);
                   }
 
-                  // const combinedMat = cv.matFromArray(
-                  //   resSize,
-                  //   resSize,
-                  //   cv.CV_8UC3,
-                  //   []
-                  // );
-                  // combinedMat.setTo(new cv.Scalar(255, 255, 255));
-                  const combinedMat = cmykMats[0];
-                  for (let i = 1; i < cmykMats.length; i++) {
+                  const combinedMat = cv.matFromArray(
+                    resSize,
+                    resSize,
+                    cv.CV_32FC3,
+                    []
+                  );
+                  combinedMat.setTo(new cv.Scalar(1.0, 1.0, 1.0));
+                  for (let i = 0; i < cmykMats.length; i++) {
                     cv.multiply(combinedMat, cmykMats[i], combinedMat);
+                    cmykMats[i].delete();
                   }
-                  // TODO fix this
-                  // convert 255-0 -> 1.0f-0.0f
                   cv.imshow(canvas, combinedMat);
+                  combinedMat.delete();
                   break;
                 }
                 default:
@@ -503,7 +525,7 @@ export default function GeneratorPage() {
         {genState === 'idle' && (
           <>
             <h2>Настройте параметры образца</h2>
-            <IonRadioGroup value={'bw'} className={styles.radioGroup}>
+            <IonRadioGroup className={styles.radioGroup}>
               <IonRadio
                 labelPlacement='end'
                 value={'bw'}
@@ -554,7 +576,6 @@ export default function GeneratorPage() {
                 disabled
               >
                 <IonIcon icon={downloadOutline} slot='start' />
-                PDF
               </IonButton>
             </>
           )}

@@ -1,10 +1,9 @@
 import { z } from 'zod';
 
-import { OpenCV } from '@/helpers/openCv';
-
 export const generatorFormSchema = z.object({
   mode: z.enum(['bw', 'color']).default('bw'),
-  maxLines: z.number().default(3200 - 1),
+  // the -1 offsets the initial step being counted
+  maxLines: z.number().default(2800 - 1),
   pinCount: z.number().default(240),
   hoopDiameter: z.number().default(0.625),
   lineWeight: z.number().default(20),
