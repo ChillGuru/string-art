@@ -1,8 +1,10 @@
-import { IonButton, IonIcon } from '@ionic/react';
-import { pause, play, playBack, playForward } from 'ionicons/icons';
-import { useState } from 'react';
+import { IonButton, IonIcon, IonPicker } from '@ionic/react';
+import { chevronUp, pause, play, playBack, playForward } from 'ionicons/icons';
+import { useRef, useState } from 'react';
 import { Redirect } from 'react-router';
 
+import { BackButton } from '@/components/BackButton';
+import { Footer } from '@/components/Layout/Footer';
 import { Header } from '@/components/Layout/Header';
 import { GeneratorService } from '@/modules/Generator/service';
 import { stepBack, stepForward } from '@/modules/Generator/slice';
@@ -18,26 +20,67 @@ const quarterClasses = [
   styles.sliceBottomLeft,
 ];
 
+const colorNames: Record<string, string> = {
+  black: 'Чёрный',
+  cyan: 'Голубой',
+  magenta: 'Пурпурный',
+  yellow: 'Жёлтый',
+};
+
+const speeedMultipliers = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+
 export function AssemblyPage() {
-  const steps = useAppSelector((s: RootState) => s.generator.layers);
-  const curStep = useAppSelector((s: RootState) => s.generator.currentStep);
+  const layers = useAppSelector((s: RootState) => s.generator.layers);
 
   const dispatch = useAppDispatch();
 
   const [playing, setPlaying] = useState(false);
+  const [speedMultiplier, setSpeedMultiplier] = useState(1);
+  const [curColor, setCurColor] = useState('black');
+  const curLayer = layers[curColor];
 
-  if (steps.length === 0) {
+  type TimeoutId = ReturnType<typeof setTimeout>;
+  const playbackTimeout = useRef<TimeoutId | undefined>(undefined);
+
+  function timer(mul: number) {
+    playbackTimeout.current = setTimeout(() => {
+      dispatch(stepForward(curColor));
+      timer(mul);
+    }, 2000 / mul);
+  }
+
+  function togglePlayback() {
+    setPlaying((prev) => !prev);
+    if (playing) {
+      clearTimeout(playbackTimeout.current);
+      return;
+    }
+    timer(speedMultiplier);
+  }
+
+  function changeSpeed(mul: number) {
+    if (!playing) {
+      return;
+    }
+    clearTimeout(playbackTimeout.current);
+    timer(mul);
+  }
+
+  if (curLayer === undefined) {
     return <Redirect to='/app' />;
   }
 
   return (
     <div className='container'>
-      <Header>Шаг</Header>
+      <Header></Header>
       <main className={styles.main}>
-        <h1>
-          Шаг 4<br />
-          Плетение
-        </h1>
+        <div className={styles.headingGroup}>
+          <BackButton />
+          <h1>
+            Шаг 4<br />
+            Плетение
+          </h1>
+        </div>
         <ol className={styles.list}>
           {new Array(5)
             .fill(0)
@@ -50,19 +93,23 @@ export function AssemblyPage() {
                       className={[
                         styles.slice,
                         quarterClasses[
-                          GeneratorService.pinToQuarter(steps[curStep + offset])
+                          GeneratorService.pinToQuarter(
+                            curLayer.steps[curLayer.currentStep + offset]
+                          )
                         ],
                       ].join(' ')}
                     >
                       <div className={styles.sliceSegment} />
                     </div>
                     <span className={styles.currentStepText}>
-                      {steps[curStep + offset]}
+                      {curLayer.steps[curLayer.currentStep + offset]}
                     </span>
                   </div>
                 )}
                 {offset !== 0 && (
-                  <div className={styles.step}>{steps[curStep + offset]}</div>
+                  <div className={styles.step}>
+                    {curLayer.steps[curLayer.currentStep + offset]}
+                  </div>
                 )}
               </li>
             ))}
@@ -70,8 +117,72 @@ export function AssemblyPage() {
       </main>
       <footer className={styles.footer}>
         <div className={styles.footerGroup}>
-          Шаг: {curStep + 1}/{steps.length}
+          Шаг: {curLayer.currentStep} / {curLayer.steps.length - 1}
         </div>
+        <div className={styles.footerSelectGroup}>
+          <IonButton id='pickColor' size='large' fill='outline' color='dark'>
+            <span style={{ width: '100%' }}>{colorNames[curColor]} Слой</span>
+            <IonIcon slot='end' icon={chevronUp} />
+          </IonButton>
+          <IonButton id='pickSpeed' size='large' fill='outline' color='dark'>
+            <span style={{ width: '100%' }}>{speedMultiplier}x</span>
+            <IonIcon slot='end' icon={chevronUp} />
+          </IonButton>
+        </div>
+        <IonPicker
+          trigger='pickSpeed'
+          buttons={[
+            { text: 'Отмена', role: 'cancel' },
+            {
+              text: 'Выбрать',
+              handler(value) {
+                setSpeedMultiplier(value.speeds.value);
+                changeSpeed(value.speeds.value);
+              },
+            },
+          ]}
+          columns={[
+            {
+              name: 'speeds',
+              selectedIndex: speeedMultipliers.findIndex(
+                (m) => m === speedMultiplier
+              ),
+              options: speeedMultipliers.map((s) => ({
+                text: `${s}x`,
+                value: s,
+              })),
+            },
+          ]}
+        />
+        <IonPicker
+          trigger='pickColor'
+          buttons={[
+            { text: 'Отмена', role: 'cancel' },
+            {
+              text: 'Выбрать',
+              handler(value) {
+                setCurColor(value.layers.value);
+              },
+            },
+          ]}
+          columns={[
+            {
+              name: 'layers',
+              selectedIndex: Object.keys(layers).findIndex(
+                (l) => l === curColor
+              ),
+              options: Object.keys(layers).map((color) => ({
+                text:
+                  colorNames[color] +
+                  ' слой ' +
+                  layers[color].currentStep +
+                  ' / ' +
+                  (layers[color].steps.length - 1),
+                value: color,
+              })),
+            },
+          ]}
+        />
         <div className={styles.footerMainGroup}>
           <IonButton
             size='large'
@@ -79,18 +190,17 @@ export function AssemblyPage() {
             shape='round'
             color='dark'
             onClick={() => {
-              dispatch(stepBack());
+              dispatch(stepBack(curColor));
             }}
           >
             <IonIcon slot='icon-only' icon={playBack} />
           </IonButton>
           <IonButton
             size='large'
-            fill='clear'
             shape='round'
-            color='dark'
+            color='primary'
             onClick={() => {
-              setPlaying((prev) => !prev);
+              togglePlayback();
             }}
           >
             <IonIcon
@@ -105,13 +215,13 @@ export function AssemblyPage() {
             shape='round'
             color='dark'
             onClick={() => {
-              dispatch(stepForward());
+              dispatch(stepForward(curColor));
             }}
           >
             <IonIcon slot='icon-only' icon={playForward} />
           </IonButton>
         </div>
-        <div className={styles.footerGroup}>moment@art.ru</div>
+        <Footer />
       </footer>
     </div>
   );

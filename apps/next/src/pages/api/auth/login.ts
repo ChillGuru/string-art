@@ -59,7 +59,7 @@ export default apiRoute({
         .where(eq(Codes.id, foundCode.id));
 
       const token = jwt.sign({ code: foundCode.value }, envServer.JWT_SECRET, {
-        expiresIn: '4h',
+        expiresIn: '8h',
       });
       return res.status(200).json({ token, role: 'user' });
     }),

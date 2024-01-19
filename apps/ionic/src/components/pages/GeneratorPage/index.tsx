@@ -18,26 +18,35 @@ import { BackButton } from '@/components/BackButton';
 import { LoadingBody } from '@/components/Layout/LoadingBody';
 import { OpenCV } from '@/helpers/openCv';
 import {
+  AssemblyLayerData,
   GeneratorForm,
+  GeneratorLayerData,
+  GeneratorMode,
   LineResult,
   Tuple,
   generatorFormSchema,
 } from '@/modules/Generator/models';
 import { GeneratorService } from '@/modules/Generator/service';
-import { setFinishedImg, setSteps } from '@/modules/Generator/slice';
+import { setFinishedImg, setLayers } from '@/modules/Generator/slice';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { RootState } from '@/redux/store';
 
 import styles from './styles.module.scss';
+
+const modeCssFilters: Record<GeneratorMode, string> = {
+  bw: styles.grayscale,
+  color: '',
+};
 
 export default function GeneratorPage() {
   const router = useIonRouter();
   const { loaded, cv } = useOpenCv();
 
   const canvas = useRef<HTMLCanvasElement>(null);
-  const generatorTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined
-  );
+
+  type TimeoutId = ReturnType<typeof setTimeout>;
+  const generatorTimeout = useRef<TimeoutId | undefined>(undefined);
+  const generatorInnerTimeout = useRef<TimeoutId | undefined>(undefined);
 
   const croppedImgUrl = useAppSelector(
     (s: RootState) => s.generator.croppedImgUrl
@@ -48,15 +57,19 @@ export default function GeneratorPage() {
   const dispatch = useAppDispatch();
 
   const [pending, setPending] = useState(false);
-
-  function resetGenerator() {
-    dispatch(setFinishedImg(undefined));
-  }
+  const [curLayer, setCurLayer] = useState(0);
+  const [maxLayer, setMaxLayer] = useState(0);
 
   const generatorForm = useForm<GeneratorForm>({
     resolver: zodResolver(generatorFormSchema),
   });
-  const onSubmit = generatorForm.handleSubmit((data) => {
+
+  function resetGenerator() {
+    dispatch(setFinishedImg(undefined));
+    generatorForm.setValue('mode', 'bw');
+  }
+
+  const onSubmit = generatorForm.handleSubmit((formData) => {
     if (!cv) {
       console.log('OpenCV not loaded yet');
       return;
@@ -65,30 +78,134 @@ export default function GeneratorPage() {
       console.log('Canvas not specified');
       return;
     }
-    if (data.mode === 'color') {
-      console.error('Цветные картинки не поддерживаются');
-      return;
-    }
-    console.log(data);
+    // if (formData.mode === 'color') {
+    //   console.error('Цветные картинки не поддерживаются');
+    //   return;
+    // }
+    console.log(formData);
     setPending(true);
 
     const canvasCur = canvas.current;
     const IMG_SIZE = GeneratorService.getImgSize(canvasCur);
 
-    const coords = GeneratorService.calculatePinCoords(data.pinCount, IMG_SIZE);
+    const coords = GeneratorService.calculatePinCoords(
+      formData.pinCount,
+      IMG_SIZE
+    );
     console.log('Координаты высчитаны');
 
     const lineRes = GeneratorService.calculateLines(
-      data.pinCount,
-      data.minInterval,
+      formData.pinCount,
+      formData.minInterval,
       coords
     );
     console.log('Линии высчитаны');
 
     generatorTimeout.current = setTimeout(() => {
       const imgMat = cv.imread(canvasCur);
-      const grayscaleImgMat = new cv.Mat();
-      cv.cvtColor(imgMat, grayscaleImgMat, cv.COLOR_RGB2GRAY);
+      const layers: GeneratorLayerData[] = [];
+
+      switch (formData.mode) {
+        case 'bw': {
+          const grayscaleImgMat = new cv.Mat();
+          cv.cvtColor(imgMat, grayscaleImgMat, cv.COLOR_RGB2GRAY);
+
+          layers.push({
+            color: 'black',
+            colorRgb: [0, 0, 0],
+            layerImgData: new Uint8Array(grayscaleImgMat.data),
+            maxLines: formData.maxLines,
+          });
+          grayscaleImgMat.delete();
+          break;
+        }
+        case 'color': {
+          // basically this
+          // https://gist.github.com/wyudong/9c392578c6247e7d1d28
+          const rgb = new cv.MatVector();
+          cv.split(imgMat, rgb);
+
+          const rLayer = rgb.get(0);
+          const gLayer = rgb.get(1);
+          const bLayer = rgb.get(2);
+
+          const cmykAsRgbLayers = Array.from({ length: 4 }, () => new cv.Mat());
+          cmykAsRgbLayers.forEach((layer) =>
+            layer.create(imgMat.rows, imgMat.cols, cv.CV_8UC3)
+          );
+
+          // loop over image and convert each pixel
+          for (let i = 0; i < imgMat.rows; i++) {
+            for (let j = 0; j < imgMat.cols; j++) {
+              const r = rLayer.ucharPtr(i, j)[0];
+              const g = gLayer.ucharPtr(i, j)[0];
+              const b = bLayer.ucharPtr(i, j)[0];
+
+              const [c, m, y, k] = GeneratorService.rgb2cmyk(r, g, b);
+              const cAsRgb = GeneratorService.cmyk2rgb(c, 0, 0, 0);
+              const mAsRgb = GeneratorService.cmyk2rgb(0, m, 0, 0);
+              const yAsRgb = GeneratorService.cmyk2rgb(0, 0, y, 0);
+              const kAsRgb = GeneratorService.cmyk2rgb(0, 0, 0, k);
+
+              for (let n = 0; n < 3; n++) {
+                cmykAsRgbLayers[0].ucharPtr(i, j)[n] = cAsRgb[n];
+                cmykAsRgbLayers[1].ucharPtr(i, j)[n] = mAsRgb[n];
+                cmykAsRgbLayers[2].ucharPtr(i, j)[n] = yAsRgb[n];
+                cmykAsRgbLayers[3].ucharPtr(i, j)[n] = kAsRgb[n];
+              }
+            }
+          }
+
+          const cmykAsGrayLayers = Array.from(
+            { length: 4 },
+            () => new cv.Mat()
+          );
+          for (let i = 0; i < cmykAsRgbLayers.length; i++) {
+            cv.cvtColor(
+              cmykAsRgbLayers[i],
+              cmykAsGrayLayers[i],
+              cv.COLOR_RGB2GRAY
+            );
+            cmykAsRgbLayers[i].delete();
+          }
+
+          layers.push(
+            {
+              color: 'black',
+              colorRgb: [0, 0, 0],
+              // copying the data to prevent a dangling pointer
+              layerImgData: new Uint8Array(cmykAsGrayLayers[3].data),
+              maxLines: formData.maxLines,
+            },
+            {
+              color: 'cyan',
+              colorRgb: [130, 255, 255],
+              layerImgData: new Uint8Array(cmykAsGrayLayers[0].data),
+              maxLines: formData.maxLines / 2,
+            },
+            {
+              color: 'magenta',
+              colorRgb: [255, 130, 255],
+              layerImgData: new Uint8Array(cmykAsGrayLayers[1].data),
+              maxLines: formData.maxLines / 2,
+            },
+            {
+              color: 'yellow',
+              colorRgb: [255, 255, 130],
+              layerImgData: new Uint8Array(cmykAsGrayLayers[2].data),
+              maxLines: formData.maxLines / 2,
+            }
+          );
+
+          rgb.delete();
+          cmykAsGrayLayers.forEach((l) => l.delete());
+          break;
+        }
+        default:
+          throw new Error('Invalid generator mode');
+      }
+      imgMat.delete();
+      setMaxLayer(layers.length);
 
       // const ctx = canvasCur.getContext('2d')!;
       // const imgPixels = ctx.getImageData(0, 0, IMG_SIZE, IMG_SIZE);
@@ -96,35 +213,38 @@ export default function GeneratorPage() {
       // ctx.clearRect(0, 0, IMG_SIZE, IMG_SIZE);
       // ctx.putImageData(imgPixels, 0, 0, 0, 0, IMG_SIZE, IMG_SIZE);
 
-      drawLines(
-        cv,
-        canvasCur,
-        coords,
-        IMG_SIZE,
-        lineRes,
-        grayscaleImgMat.data,
-        data
-      );
+      let layerIdx = 0;
+      const resLayers: Record<string, AssemblyLayerData> = {};
+      generatorTimeout.current = setTimeout(() => {
+        setCurLayer(layerIdx);
+        drawLines(
+          cv,
+          canvasCur,
+          coords,
+          IMG_SIZE,
+          lineRes,
+          layers[layerIdx],
+          formData
+        );
+      }, 0);
       function drawLines(
         cv: OpenCV,
         canvas: HTMLCanvasElement,
         coords: Tuple[],
         imgSize: number,
         lineResult: LineResult,
-        imgData: number[],
-        {
-          pinCount,
-          scale,
-          maxLines,
-          minInterval,
-          lineWeight,
-          hoopDiameter,
-        }: GeneratorForm
+        layerData: GeneratorLayerData,
+        formData: GeneratorForm
       ) {
+        const { color, colorRgb, layerImgData, maxLines } = layerData;
+        const { mode, pinCount, scale, minInterval, lineWeight, hoopDiameter } =
+          formData;
+
         const error = nj
           .ones([imgSize, imgSize])
           .multiply(255)
-          .subtract(nj.uint8(imgData).reshape(imgSize, imgSize));
+          //@ts-ignore
+          .subtract(nj.uint8(layerImgData).reshape(imgSize, imgSize));
         const result = cv.matFromArray(
           imgSize * scale,
           imgSize * scale,
@@ -142,27 +262,112 @@ export default function GeneratorPage() {
         const steps: number[] = [currentPin];
         const lastPins: number[] = [];
 
+        generatorInnerTimeout.current = setTimeout(recursiveFn, 0);
         function recursiveFn() {
           if (i >= maxLines) {
-            //finalise
-            console.log('Рисование закончено', steps);
-            const ctx = canvas.getContext('2d')!;
-            GeneratorService.cropCircle(ctx, canvas.height);
-            canvas.toBlob((blob) => {
-              if (!blob) {
-                console.error('Unable to create blob from finished img');
-                return;
+            // save layer
+            const resultMat = cv.imread(canvas);
+            const strSteps = steps.map((s) =>
+              GeneratorService.pinToStr(s, pinCount)
+            );
+            console.log(`Рисование слоя ${layerIdx} закончено`, steps);
+            resLayers[color] = {
+              color,
+              colorRgb,
+              steps: strSteps,
+              currentStep: 0,
+              layerImgData: new Uint8Array(resultMat.data),
+            };
+            resultMat.delete();
+            result.delete();
+
+            if (layerIdx + 1 >= layers.length) {
+              // finalise
+              const ctx = canvas.getContext('2d')!;
+              const resSize = imgSize * 2;
+
+              switch (mode) {
+                case 'bw': {
+                  const bwLayer = resLayers['black'];
+                  const mat = cv.matFromArray(
+                    resSize,
+                    resSize,
+                    cv.CV_8UC4,
+                    bwLayer.layerImgData
+                  );
+                  cv.cvtColor(mat, mat, cv.COLOR_RGBA2RGB);
+                  cv.imshow(canvas, mat);
+                  mat.delete();
+                  break;
+                }
+                case 'color': {
+                  const cmykMats = [new cv.Mat()];
+                  cmykMats.pop()!.delete();
+
+                  // this is how you combine cmyk layers together
+                  // https://en.wikipedia.org/wiki/Blend_modes#Multiply
+                  for (const color of ['cyan', 'magenta', 'yellow', 'black']) {
+                    const mat = cv.matFromArray(
+                      resSize,
+                      resSize,
+                      cv.CV_8UC4,
+                      resLayers[color].layerImgData
+                    );
+                    cv.cvtColor(mat, mat, cv.COLOR_RGBA2RGB);
+                    // convert 0-255 values to 0.0f-1.0f
+                    mat.convertTo(mat, cv.CV_32FC3, 1 / 255);
+                    cmykMats.push(mat);
+                  }
+
+                  const combinedMat = cv.matFromArray(
+                    resSize,
+                    resSize,
+                    cv.CV_32FC3,
+                    []
+                  );
+                  combinedMat.setTo(new cv.Scalar(1.0, 1.0, 1.0));
+                  for (let i = 0; i < cmykMats.length; i++) {
+                    cv.multiply(combinedMat, cmykMats[i], combinedMat);
+                    cmykMats[i].delete();
+                  }
+                  cv.imshow(canvas, combinedMat);
+                  combinedMat.delete();
+                  break;
+                }
+                default:
+                  throw new Error('Неверный режим генератора');
               }
-              const strSteps = steps.map((s) =>
-                GeneratorService.pinToStr(s, pinCount)
+
+              GeneratorService.cropCircle(ctx, canvas.height);
+              canvas.toBlob((blob) => {
+                if (!blob) {
+                  console.error('Unable to create blob from finished img');
+                  return;
+                }
+                console.log(strSteps);
+                dispatch(setFinishedImg(blob));
+                dispatch(setLayers(resLayers));
+                setPending(false);
+              });
+              return;
+            }
+
+            layerIdx++;
+            generatorTimeout.current = setTimeout(() => {
+              setCurLayer(layerIdx);
+              drawLines(
+                cv,
+                canvasCur,
+                coords,
+                IMG_SIZE,
+                lineRes,
+                layers[layerIdx],
+                formData
               );
-              console.log(strSteps);
-              dispatch(setSteps(strSteps));
-              dispatch(setFinishedImg(blob));
-              setPending(false);
-            });
+            }, 0);
             return;
           }
+
           if (i % 10 === 0) {
             //draw
             const dsize = new cv.Size(imgSize * 2, imgSize * 2);
@@ -171,6 +376,7 @@ export default function GeneratorPage() {
             cv.imshow(canvas, dst);
             dst.delete();
           }
+
           let maxError = -1,
             bestPin = -1;
           for (
@@ -215,15 +421,11 @@ export default function GeneratorPage() {
           const y1 = coords[bestPin][1];
           const ptNext = new cv.Point(x1 * scale, y1 * scale);
 
-          let color: number[] = [];
-          color = [0, 0, 0];
-          // color = [130, 255, 255];
-
           cv.line(
             result,
             ptCur,
             ptNext,
-            new cv.Scalar(...color),
+            new cv.Scalar(...colorRgb),
             Math.floor(lineWeight / 10),
             cv.LINE_AA,
             0
@@ -238,11 +440,8 @@ export default function GeneratorPage() {
           currentPin = bestPin;
           i++;
 
-          if (generatorTimeout.current) {
-            generatorTimeout.current = setTimeout(recursiveFn, 0);
-          }
+          generatorInnerTimeout.current = setTimeout(recursiveFn, 0);
         }
-        recursiveFn();
       }
     }, 0);
   });
@@ -286,6 +485,7 @@ export default function GeneratorPage() {
   useEffect(() => {
     return () => {
       clearTimeout(generatorTimeout.current);
+      clearTimeout(generatorInnerTimeout.current);
     };
   }, []);
 
@@ -298,7 +498,7 @@ export default function GeneratorPage() {
     return <Redirect to='/app/crop' />;
   }
 
-  if (!loaded) {
+  if (!loaded || !cv) {
     return <LoadingBody />;
   }
 
@@ -308,8 +508,13 @@ export default function GeneratorPage() {
         Шаг 3<br />
         Начинаем генерацию образца
       </h1>
-      <canvas ref={canvas} className={styles.imgDisplay} />
+      <canvas ref={canvas} className={[styles.imgDisplay].join(' ')} />
       <form onSubmit={onSubmit} className={styles.form}>
+        {genState === 'pending' && maxLayer > 0 && (
+          <h2>
+            Слой: {curLayer + 1} / {maxLayer}
+          </h2>
+        )}
         {genState === 'finished' && <h2>Образец готов!</h2>}
         {genState === 'idle' && (
           <>
@@ -324,7 +529,6 @@ export default function GeneratorPage() {
               </IonRadio>
               <IonRadio
                 labelPlacement='end'
-                disabled
                 value={'color'}
                 {...generatorForm.register('mode')}
               >
@@ -365,8 +569,7 @@ export default function GeneratorPage() {
                 fill='outline'
                 disabled
               >
-                <IonIcon icon={downloadOutline} slot='start' />
-                PDF
+                <IonIcon icon={downloadOutline} slot='icon-only' />
               </IonButton>
             </>
           )}
@@ -379,6 +582,7 @@ export default function GeneratorPage() {
               size='large'
               shape='round'
               fill='outline'
+              color='dark'
               onClick={resetGenerator}
             >
               <IonIcon icon={refreshOutline} size='large' slot='end' />

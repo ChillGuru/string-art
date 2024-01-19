@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const generatorFormSchema = z.object({
   mode: z.enum(['bw', 'color']).default('bw'),
-  maxLines: z.number().default(3200 - 1),
+  maxLines: z.number().default(2800),
   pinCount: z.number().default(240),
   hoopDiameter: z.number().default(0.625),
   lineWeight: z.number().default(20),
@@ -21,3 +21,21 @@ export type LineResult = {
   lineCacheLength: number[];
   lineCacheWeight: number[];
 };
+
+export type AssemblyLayerData = {
+  color: string;
+  colorRgb: [number, number, number];
+  steps: string[];
+  currentStep: number;
+  layerImgData: Uint8Array;
+};
+
+export type GeneratorLayerData = {
+  color: string;
+  colorRgb: [number, number, number];
+  layerImgData: Uint8Array;
+  maxLines: number;
+};
+
+export const layerColors = ['black', 'cyan', 'yellow', 'magenta'] as const;
+export type LayerColor = (typeof layerColors)[number];

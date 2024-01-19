@@ -3,6 +3,14 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
+
+  padding: 0 10px;
+}
+
+.headingGroup {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
 }
 
 .list {
@@ -87,7 +95,8 @@
 .footer {
   flex: auto 0 0;
 
-  padding: 6px;
+  padding: 0 6px;
+  gap: 4px;
 
   display: flex;
   flex-direction: column;
@@ -100,9 +109,18 @@
   justify-content: center;
 }
 
+.footerSelectGroup {
+  width: 100%;
+  height: 4.2rem;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: 1fr 1fr;
+}
+
 .footerMainGroup {
   width: 100%;
   height: 6rem;
   display: grid;
+  gap: 10px;
   grid-template-columns: 1fr 1fr 1fr;
 }
