@@ -575,7 +575,7 @@ export default function GeneratorPage() {
                 fill='outline'
                 disabled
               >
-                <IonIcon icon={downloadOutline} slot='start' />
+                <IonIcon icon={downloadOutline} slot='icon-only' />
               </IonButton>
             </>
           )}
