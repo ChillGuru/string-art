@@ -2,7 +2,7 @@ import { IonButton, IonIcon, useIonRouter } from '@ionic/react';
 import { chevronBack } from 'ionicons/icons';
 
 type Props = {
-  backUrl: string;
+  backUrl?: string;
 };
 
 export function BackButton({ backUrl }: Props) {
@@ -16,10 +16,10 @@ export function BackButton({ backUrl }: Props) {
       onClick={() => {
         router.goBack();
         return;
-        if (backUrl) {
-          router.push(backUrl, 'back', 'replace', { unmount: true });
-          return;
-        }
+        // if (backUrl) {
+        //   router.push(backUrl, 'back', 'replace', { unmount: true });
+        //   return;
+        // }
       }}
     >
       <IonIcon slot='icon-only' size='large' icon={chevronBack} />

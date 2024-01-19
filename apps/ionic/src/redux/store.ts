@@ -13,7 +13,9 @@ export const store = configureStore({
           'generator/setImg',
           'generator/setCroppedImg',
           'generator/setFinishedImg',
+          'generator/setLayers',
         ],
+        ignoredPaths: ['generator.layers'],
       },
     }),
 });

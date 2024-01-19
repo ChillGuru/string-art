@@ -27,7 +27,7 @@ import {
   generatorFormSchema,
 } from '@/modules/Generator/models';
 import { GeneratorService } from '@/modules/Generator/service';
-import { setFinishedImg, setSteps } from '@/modules/Generator/slice';
+import { setFinishedImg, setLayers } from '@/modules/Generator/slice';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { RootState } from '@/redux/store';
 
@@ -240,22 +240,6 @@ export default function GeneratorPage() {
         const { mode, pinCount, scale, minInterval, lineWeight, hoopDiameter } =
           formData;
 
-        // let maxLines: number;
-        // switch (mode) {
-        //   case 'bw': {
-        //     maxLines = formData.maxLines;
-        //     break;
-        //   }
-        //   case 'color': {
-        //     maxLines = formData.maxLines + 1;
-        //     maxLines /= 2;
-        //     maxLines -= 1;
-        //     break;
-        //   }
-        //   default:
-        //     throw new Error('Неверный режим генератора');
-        // }
-
         const error = nj
           .ones([imgSize, imgSize])
           .multiply(255)
@@ -361,8 +345,8 @@ export default function GeneratorPage() {
                   return;
                 }
                 console.log(strSteps);
-                dispatch(setSteps(strSteps));
                 dispatch(setFinishedImg(blob));
+                dispatch(setLayers(resLayers));
                 setPending(false);
               });
               return;
@@ -528,7 +512,7 @@ export default function GeneratorPage() {
       <form onSubmit={onSubmit} className={styles.form}>
         {genState === 'pending' && maxLayer > 0 && (
           <h2>
-            Слой {curLayer + 1} / {maxLayer}
+            Слой: {curLayer + 1} / {maxLayer}
           </h2>
         )}
         {genState === 'finished' && <h2>Образец готов!</h2>}

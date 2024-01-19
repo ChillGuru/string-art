@@ -3,6 +3,14 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
+
+  padding: 0 10px;
+}
+
+.headingGroup {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
 }
 
 .list {
@@ -88,6 +96,7 @@
   flex: auto 0 0;
 
   padding: 0 6px;
+  gap: 4px;
 
   display: flex;
   flex-direction: column;

@@ -36,3 +36,6 @@ export type GeneratorLayerData = {
   layerImgData: Uint8Array;
   maxLines: number;
 };
+
+export const layerColors = ['black', 'cyan', 'yellow', 'magenta'] as const;
+export type LayerColor = (typeof layerColors)[number];

@@ -8,14 +8,10 @@ export type GeneratorState = {
   croppedImgUrl?: string;
   finishedImgUrl?: string;
   layers: Record<string, AssemblyLayerData>;
-  steps: string[];
-  currentStep: number;
 };
 
 const initialState: GeneratorState = {
   layers: {},
-  steps: [],
-  currentStep: 0,
 };
 
 export const generatorSlice = createSlice({
@@ -25,31 +21,36 @@ export const generatorSlice = createSlice({
     setImg(state, { payload }: PayloadAction<File | undefined>) {
       state.imgUrl = GeneratorService.getNewObjectUrl(state.imgUrl, payload);
     },
+
     setCroppedImg(state, { payload }: PayloadAction<Blob | undefined>) {
       state.croppedImgUrl = GeneratorService.getNewObjectUrl(
         state.croppedImgUrl,
         payload
       );
     },
+
     setFinishedImg(state, { payload }: PayloadAction<Blob | undefined>) {
       state.finishedImgUrl = GeneratorService.getNewObjectUrl(
         state.finishedImgUrl,
         payload
       );
     },
+
     setLayers(state, { payload }: PayloadAction<GeneratorState['layers']>) {
       state.layers = payload;
     },
-    setSteps(state, { payload }: PayloadAction<string[]>) {
-      state.steps = payload;
+
+    stepBack(state, { payload }: PayloadAction<string>) {
+      state.layers[payload].currentStep = Math.max(
+        0,
+        state.layers[payload].currentStep - 1
+      );
     },
-    stepBack(state) {
-      state.currentStep = Math.max(0, state.currentStep - 1);
-    },
-    stepForward(state) {
-      state.currentStep = Math.min(
-        state.steps.length - 1,
-        state.currentStep + 1
+
+    stepForward(state, { payload }: PayloadAction<string>) {
+      state.layers[payload].currentStep = Math.min(
+        state.layers[payload].steps.length - 1,
+        state.layers[payload].currentStep + 1
       );
     },
   },
@@ -60,7 +61,6 @@ export const {
   setCroppedImg,
   setFinishedImg,
   setLayers,
-  setSteps,
   stepBack,
   stepForward,
 } = generatorSlice.actions;
