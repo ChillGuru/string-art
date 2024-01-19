@@ -3,6 +3,7 @@ import { chevronUp, pause, play, playBack, playForward } from 'ionicons/icons';
 import { useState } from 'react';
 import { Redirect } from 'react-router';
 
+import { BackButton } from '@/components/BackButton';
 import { Footer } from '@/components/Layout/Footer';
 import { Header } from '@/components/Layout/Header';
 import { GeneratorService } from '@/modules/Generator/service';
@@ -10,7 +11,6 @@ import { stepBack, stepForward } from '@/modules/Generator/slice';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { RootState } from '@/redux/store';
 
-import { BackButton } from '@/components/BackButton';
 import styles from './styles.module.scss';
 
 const quarterClasses = [

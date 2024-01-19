@@ -582,6 +582,7 @@ export default function GeneratorPage() {
               size='large'
               shape='round'
               fill='outline'
+              color='dark'
               onClick={resetGenerator}
             >
               <IonIcon icon={refreshOutline} size='large' slot='end' />
