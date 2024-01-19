@@ -1,6 +1,6 @@
 import { IonButton, IonIcon, IonPicker } from '@ionic/react';
 import { chevronUp, pause, play, playBack, playForward } from 'ionicons/icons';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Redirect } from 'react-router';
 
 import { BackButton } from '@/components/BackButton';
@@ -27,14 +27,44 @@ const colorNames: Record<string, string> = {
   yellow: 'Жёлтый',
 };
 
+const speeedMultipliers = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+
 export function AssemblyPage() {
   const layers = useAppSelector((s: RootState) => s.generator.layers);
 
   const dispatch = useAppDispatch();
 
   const [playing, setPlaying] = useState(false);
+  const [speedMultiplier, setSpeedMultiplier] = useState(1);
   const [curColor, setCurColor] = useState('black');
   const curLayer = layers[curColor];
+
+  type IntervalId = ReturnType<typeof setInterval>;
+  const playbackInterval = useRef<IntervalId | undefined>(undefined);
+
+  function timer(mul: number) {
+    playbackInterval.current = setTimeout(() => {
+      dispatch(stepForward(curColor));
+      timer(mul);
+    }, 2000 / mul);
+  }
+
+  function togglePlayback() {
+    setPlaying((prev) => !prev);
+    if (playing) {
+      clearInterval(playbackInterval.current);
+      return;
+    }
+    timer(speedMultiplier);
+  }
+
+  function changeSpeed(mul: number) {
+    if (!playing) {
+      return;
+    }
+    clearInterval(playbackInterval.current);
+    timer(mul);
+  }
 
   if (curLayer === undefined) {
     return <Redirect to='/app' />;
@@ -89,12 +119,41 @@ export function AssemblyPage() {
         <div className={styles.footerGroup}>
           Шаг: {curLayer.currentStep} / {curLayer.steps.length - 1}
         </div>
-        <div className={styles.footerGroup}>
+        <div className={styles.footerSelectGroup}>
           <IonButton id='pickColor' size='large' fill='outline' color='dark'>
-            {colorNames[curColor]} Слой
+            <span style={{ width: '100%' }}>{colorNames[curColor]} Слой</span>
+            <IonIcon slot='end' icon={chevronUp} />
+          </IonButton>
+          <IonButton id='pickSpeed' size='large' fill='outline' color='dark'>
+            <span style={{ width: '100%' }}>{speedMultiplier}x</span>
             <IonIcon slot='end' icon={chevronUp} />
           </IonButton>
         </div>
+        <IonPicker
+          trigger='pickSpeed'
+          buttons={[
+            { text: 'Отмена', role: 'cancel' },
+            {
+              text: 'Выбрать',
+              handler(value) {
+                setSpeedMultiplier(value.speeds.value);
+                changeSpeed(value.speeds.value);
+              },
+            },
+          ]}
+          columns={[
+            {
+              name: 'speeds',
+              selectedIndex: speeedMultipliers.findIndex(
+                (m) => m === speedMultiplier
+              ),
+              options: speeedMultipliers.map((s) => ({
+                text: `${s}x`,
+                value: s,
+              })),
+            },
+          ]}
+        />
         <IonPicker
           trigger='pickColor'
           buttons={[
@@ -109,6 +168,9 @@ export function AssemblyPage() {
           columns={[
             {
               name: 'layers',
+              selectedIndex: Object.keys(layers).findIndex(
+                (l) => l === curColor
+              ),
               options: Object.keys(layers).map((color) => ({
                 text:
                   colorNames[color] +
@@ -138,7 +200,7 @@ export function AssemblyPage() {
             shape='round'
             color='primary'
             onClick={() => {
-              setPlaying((prev) => !prev);
+              togglePlayback();
             }}
           >
             <IonIcon
