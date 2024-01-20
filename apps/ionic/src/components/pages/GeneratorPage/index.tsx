@@ -8,7 +8,7 @@ import {
   IonSpinner,
   useIonRouter,
 } from '@ionic/react';
-import { downloadOutline, refreshOutline } from 'ionicons/icons';
+import { download, refreshOutline } from 'ionicons/icons';
 import { useOpenCv } from 'opencv-react-ts';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -489,6 +489,18 @@ export default function GeneratorPage() {
     };
   }, []);
 
+  function downloadStuff() {
+    if (!finishedImgUrl) {
+      console.error('No image to download');
+      return;
+    }
+    const anchor = document.createElement('a');
+    anchor.href = finishedImgUrl;
+    anchor.download = 'Образец';
+
+    anchor.click();
+  }
+
   const genState = GeneratorService.getGeneratorState(
     pending,
     !!finishedImgUrl
@@ -567,9 +579,11 @@ export default function GeneratorPage() {
                 size='large'
                 shape='round'
                 fill='outline'
-                disabled
+                onClick={() => {
+                  downloadStuff();
+                }}
               >
-                <IonIcon icon={downloadOutline} slot='icon-only' />
+                <IonIcon icon={download} slot='icon-only' />
               </IonButton>
             </>
           )}
