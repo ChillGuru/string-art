@@ -1,5 +1,24 @@
 @import '@/styles/variables.scss';
 
+.main {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+
+  .header {
+    font-size: 20px;
+    margin-bottom: 40px;
+    line-height: 24px;
+  }
+
+  .img {
+    width: 250px;
+    margin-bottom: 40px;
+  }
+}
+
+
+
 .loginForm {
   display: flex;
   flex-direction: column;

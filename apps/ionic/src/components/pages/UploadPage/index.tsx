@@ -6,6 +6,8 @@ import { AuthService } from '@/modules/Auth/service';
 import { setImg } from '@/modules/Generator/slice';
 import { useAppDispatch } from '@/redux/hooks';
 
+import styles from './styles.module.scss';
+
 export function UploadPage() {
   const dispatch = useAppDispatch();
   const router = useIonRouter();
@@ -20,29 +22,45 @@ export function UploadPage() {
 
   return (
     <Layout>
-      <main>
-        <IonButton
-          type='button'
-          size='large'
-          fill='clear'
-          onClick={() =>
-            AuthService.logOut(() => router.push('/', 'root', 'replace'))
-          }
-        >
-          Выйти
-        </IonButton>
-        <form onSubmit={onSubmit}>
-          {imgForm.formState.isValid ? 'Можно субмиттить' : 'Нельзя субмиттить'}
+      <main className={styles.container}>
+        <div className={styles.header}>
+          ШАГ 1 <br/>
+          ЗАГРУЗКА ИЗОБРАЖЕНИЯ
+        </div>
+        <form onSubmit={onSubmit} className={styles.form}>
+          <span className={styles.formHeader}>
+            Выберите изображение
+          </span>
+          <img src="public/imgSelectIcon.png"
+            className={styles.imgSelectLogo}
+            alt="imgSelectLogo" />
           <input
             {...imgForm.register('image', { required: true })}
             type='file'
+            id='imgInput'
             accept='image/*'
-            style={{ width: '100%' }}
+            className={styles.imgInput}
+            multiple
           />
+          <label htmlFor="imgInput" className={styles.imageSelectButton}>
+            <span>Выбрать</span>
+          </label>
           <IonButton size='large' type='submit'>
             Загрузить картинку
           </IonButton>
         </form>
+        <div className={styles.navButtons}>
+          <IonButton
+            type='button'
+            size='large'
+            fill='clear'
+            onClick={() =>
+            AuthService.logOut(() => router.push('/', 'root', 'replace'))
+          }
+        >
+            Выйти
+          </IonButton>
+        </div>
       </main>
     </Layout>
   );

@@ -6,6 +6,7 @@ import { env } from '@/env';
 import { jsonContentHeader } from '@/helpers/jsonContentHeader';
 import { TLoginForm, UserRole, loginFormSchema } from '@/modules/Auth/models';
 import { AuthService } from '@/modules/Auth/service';
+import { withMask } from 'use-mask-input';
 
 import styles from './styles.module.scss';
 
@@ -43,8 +44,9 @@ export function LoginForm() {
         <div className={styles.formInner}>
           <input
             type='text'
-            placeholder='XXXXXXXX'
+            placeholder='XXXX-XXXX'
             {...loginForm.register('code')}
+            ref={withMask('9999-9999')}
             className={errorMsg ? styles.formInputError : styles.formInput}
           />
           <button
