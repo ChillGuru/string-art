@@ -39,6 +39,7 @@
   max-width: 100%;
   color: var(--ion-color-light);
   border-radius: 50%;
+  border: 2px rgba(var(--ion-color-medium-rgb), 33%) solid;
   position: relative;
 
   &Text {

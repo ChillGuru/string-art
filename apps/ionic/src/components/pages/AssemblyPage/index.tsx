@@ -1,6 +1,7 @@
 import { IonButton, IonIcon, IonPicker } from '@ionic/react';
+import { animated, useSpring } from '@react-spring/web';
 import { chevronUp, pause, play, playBack, playForward } from 'ionicons/icons';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Redirect } from 'react-router';
 
 import { BackButton } from '@/components/BackButton';
@@ -41,6 +42,24 @@ export function AssemblyPage() {
 
   type TimeoutId = ReturnType<typeof setTimeout>;
   const playbackTimeout = useRef<TimeoutId | undefined>(undefined);
+
+  const [springs, animate] = useSpring(() => ({
+    from: { opacity: 0, y: 0 },
+    to: { opacity: 1, y: 0 },
+  }));
+
+  const previousStep = useRef(0);
+  useEffect(() => {
+    if (previousStep.current < curLayer.currentStep) {
+      animate({
+        from: { y: 30 },
+        to: { y: 0 },
+      });
+    } else {
+      animate({ from: { y: -30 }, to: { y: 0 } });
+    }
+    previousStep.current = curLayer.currentStep;
+  }, [curLayer.currentStep, animate]);
 
   function timer(mul: number) {
     playbackTimeout.current = setTimeout(() => {
@@ -101,14 +120,16 @@ export function AssemblyPage() {
                       <div className={styles.sliceSegment} />
                     </div>
                     <span className={styles.currentStepText}>
-                      {curLayer.steps[curLayer.currentStep + offset]}
+                      <animated.div style={{ ...springs }}>
+                        {curLayer.steps[curLayer.currentStep + offset]}
+                      </animated.div>
                     </span>
                   </div>
                 )}
                 {offset !== 0 && (
-                  <div className={styles.step}>
+                  <animated.div className={styles.step} style={{ ...springs }}>
                     {curLayer.steps[curLayer.currentStep + offset]}
-                  </div>
+                  </animated.div>
                 )}
               </li>
             ))}
