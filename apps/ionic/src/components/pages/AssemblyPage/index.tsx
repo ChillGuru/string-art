@@ -124,7 +124,7 @@ export function AssemblyPage() {
             <IonIcon slot='end' icon={chevronUp} />
           </IonButton>
           <IonButton id='pickSpeed' size='large' fill='outline' color='dark'>
-            <span style={{ width: '100%' }}>{speedMultiplier}x</span>
+            <span style={{ width: '100%' }}>Скорость {speedMultiplier}x</span>
             <IonIcon slot='end' icon={chevronUp} />
           </IonButton>
         </div>
@@ -230,7 +230,7 @@ export function AssemblyPage() {
             <IonIcon slot='icon-only' icon={playForward} />
           </IonButton>
         </div>
-        <Footer />
+        {/* <Footer /> */}
       </footer>
     </div>
   );

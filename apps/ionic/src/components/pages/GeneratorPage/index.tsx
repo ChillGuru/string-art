@@ -562,7 +562,7 @@ export default function GeneratorPage() {
               >
                 Плести
               </IonButton>
-              <IonButton
+              {/* <IonButton
                 type='button'
                 size='large'
                 shape='round'
@@ -570,7 +570,7 @@ export default function GeneratorPage() {
                 disabled
               >
                 <IonIcon icon={downloadOutline} slot='icon-only' />
-              </IonButton>
+              </IonButton> */}
             </>
           )}
         </div>
