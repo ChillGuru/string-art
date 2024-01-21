@@ -6,17 +6,22 @@ import { env } from '@/env';
 import { jsonContentHeader } from '@/helpers/jsonContentHeader';
 import { TLoginForm, UserRole, loginFormSchema } from '@/modules/Auth/models';
 import { AuthService } from '@/modules/Auth/service';
-import { withMask } from 'use-mask-input';
+import { useHookFormMask } from 'use-mask-input';
 
 import styles from './styles.module.scss';
 
 export function LoginForm() {
+  const router = useIonRouter();
+
   const loginForm = useForm<TLoginForm>({
     resolver: zodResolver(loginFormSchema),
   });
-  const router = useIonRouter();
+
+  const registerWithMask = useHookFormMask(loginForm.register);
 
   const onSubmit = loginForm.handleSubmit(async (data) => {
+    data.code = data.code.replace('-', '');
+
     const resp: { token: string; role: UserRole } = await fetch(
       `${env.VITE_API_URL}/auth/login`,
       {
@@ -45,8 +50,7 @@ export function LoginForm() {
           <input
             type='text'
             placeholder='XXXX-XXXX'
-            {...loginForm.register('code')}
-            ref={withMask('9999-9999')}
+            {...registerWithMask('code', ['9999-9999'])}
             className={errorMsg ? styles.formInputError : styles.formInput}
           />
           <button
