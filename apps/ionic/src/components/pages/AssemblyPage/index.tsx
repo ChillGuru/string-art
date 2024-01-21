@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Redirect } from 'react-router';
 
 import { BackButton } from '@/components/BackButton';
-import { Footer } from '@/components/Layout/Footer';
 import { Header } from '@/components/Layout/Header';
 import { GeneratorService } from '@/modules/Generator/service';
 import { stepBack, stepForward } from '@/modules/Generator/slice';
@@ -43,7 +42,7 @@ export function AssemblyPage() {
   type TimeoutId = ReturnType<typeof setTimeout>;
   const playbackTimeout = useRef<TimeoutId | undefined>(undefined);
 
-  const [springs, animate] = useSpring(() => ({
+  const [stepSprings, animateSteps] = useSpring(() => ({
     from: { opacity: 0, y: 0 },
     to: { opacity: 1, y: 0 },
   }));
@@ -51,15 +50,17 @@ export function AssemblyPage() {
   const previousStep = useRef(0);
   useEffect(() => {
     if (previousStep.current < curLayer.currentStep) {
-      animate({
+      animateSteps({
         from: { y: 30 },
         to: { y: 0 },
       });
     } else {
-      animate({ from: { y: -30 }, to: { y: 0 } });
+      animateSteps({ from: { y: -30 }, to: { y: 0 } });
     }
     previousStep.current = curLayer.currentStep;
-  }, [curLayer.currentStep, animate]);
+  }, [curLayer.currentStep, animateSteps]);
+
+  const bodySpring = useSpring({ from: { opacity: 0 }, to: { opacity: 1 } });
 
   function timer(mul: number) {
     playbackTimeout.current = setTimeout(() => {
@@ -91,7 +92,7 @@ export function AssemblyPage() {
   return (
     <div className='container'>
       <Header></Header>
-      <main className={styles.main}>
+      <animated.main className={styles.main} style={{ ...bodySpring }}>
         <div className={styles.headingGroup}>
           <BackButton />
           <h1>
@@ -120,22 +121,25 @@ export function AssemblyPage() {
                       <div className={styles.sliceSegment} />
                     </div>
                     <span className={styles.currentStepText}>
-                      <animated.div style={{ ...springs }}>
+                      <animated.div style={{ ...stepSprings }}>
                         {curLayer.steps[curLayer.currentStep + offset]}
                       </animated.div>
                     </span>
                   </div>
                 )}
                 {offset !== 0 && (
-                  <animated.div className={styles.step} style={{ ...springs }}>
+                  <animated.div
+                    className={styles.step}
+                    style={{ ...stepSprings }}
+                  >
                     {curLayer.steps[curLayer.currentStep + offset]}
                   </animated.div>
                 )}
               </li>
             ))}
         </ol>
-      </main>
-      <footer className={styles.footer}>
+      </animated.main>
+      <animated.footer className={styles.footer} style={{ ...bodySpring }}>
         <div className={styles.footerGroup}>
           Шаг: {curLayer.currentStep} / {curLayer.steps.length - 1}
         </div>
@@ -252,7 +256,7 @@ export function AssemblyPage() {
           </IonButton>
         </div>
         {/* <Footer /> */}
-      </footer>
+      </animated.footer>
     </div>
   );
 }

@@ -111,6 +111,9 @@ importers:
       '@capacitor/cli':
         specifier: 5.5.0
         version: 5.5.0
+      '@react-spring/types':
+        specifier: ^9.7.3
+        version: 9.7.3
       '@testing-library/jest-dom':
         specifier: ^5.16.5
         version: 5.17.0
@@ -2963,7 +2966,6 @@ packages:
 
   /@react-spring/types@9.7.3:
     resolution: {integrity: sha512-Kpx/fQ/ZFX31OtlqVEFfgaD1ACzul4NksrvIgYfIFq9JpDHFwQkMVZ10tbo0FU/grje4rcL4EIrjekl3kYwgWw==}
-    dev: false
 
   /@react-spring/web@9.7.3(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-BXt6BpS9aJL/QdVqEIX9YoUy8CE6TJrU0mNCqSoxdXlIeNcEBWOfIyE6B14ENNsyQKS3wOWkiJfco0tCr/9tUg==}

@@ -503,7 +503,7 @@ export default function GeneratorPage() {
   }
 
   return (
-    <main className={styles.main}>
+    <>
       <h1>
         Шаг 3<br />
         Начинаем генерацию образца
@@ -591,6 +591,6 @@ export default function GeneratorPage() {
           </div>
         )}
       </form>
-    </main>
+    </>
   );
 }
