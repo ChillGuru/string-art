@@ -1,10 +1,10 @@
 import { IonButton, IonIcon, IonPicker } from '@ionic/react';
+import { animated, useSpring } from '@react-spring/web';
 import { chevronUp, pause, play, playBack, playForward } from 'ionicons/icons';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Redirect } from 'react-router';
 
 import { BackButton } from '@/components/BackButton';
-import { Footer } from '@/components/Layout/Footer';
 import { Header } from '@/components/Layout/Header';
 import { GeneratorService } from '@/modules/Generator/service';
 import { stepBack, stepForward } from '@/modules/Generator/slice';
@@ -42,6 +42,26 @@ export function AssemblyPage() {
   type TimeoutId = ReturnType<typeof setTimeout>;
   const playbackTimeout = useRef<TimeoutId | undefined>(undefined);
 
+  const [stepSprings, animateSteps] = useSpring(() => ({
+    from: { opacity: 0, y: 0 },
+    to: { opacity: 1, y: 0 },
+  }));
+
+  const previousStep = useRef(0);
+  useEffect(() => {
+    if (previousStep.current < curLayer.currentStep) {
+      animateSteps({
+        from: { y: 30 },
+        to: { y: 0 },
+      });
+    } else {
+      animateSteps({ from: { y: -30 }, to: { y: 0 } });
+    }
+    previousStep.current = curLayer.currentStep;
+  }, [curLayer.currentStep, animateSteps]);
+
+  const bodySpring = useSpring({ from: { opacity: 0 }, to: { opacity: 1 } });
+
   function timer(mul: number) {
     playbackTimeout.current = setTimeout(() => {
       dispatch(stepForward(curColor));
@@ -72,7 +92,7 @@ export function AssemblyPage() {
   return (
     <div className='container'>
       <Header></Header>
-      <main className={styles.main}>
+      <animated.main className={styles.main} style={{ ...bodySpring }}>
         <div className={styles.headingGroup}>
           <BackButton />
           <h1>
@@ -101,20 +121,25 @@ export function AssemblyPage() {
                       <div className={styles.sliceSegment} />
                     </div>
                     <span className={styles.currentStepText}>
-                      {curLayer.steps[curLayer.currentStep + offset]}
+                      <animated.div style={{ ...stepSprings }}>
+                        {curLayer.steps[curLayer.currentStep + offset]}
+                      </animated.div>
                     </span>
                   </div>
                 )}
                 {offset !== 0 && (
-                  <div className={styles.step}>
+                  <animated.div
+                    className={styles.step}
+                    style={{ ...stepSprings }}
+                  >
                     {curLayer.steps[curLayer.currentStep + offset]}
-                  </div>
+                  </animated.div>
                 )}
               </li>
             ))}
         </ol>
-      </main>
-      <footer className={styles.footer}>
+      </animated.main>
+      <animated.footer className={styles.footer} style={{ ...bodySpring }}>
         <div className={styles.footerGroup}>
           Шаг: {curLayer.currentStep} / {curLayer.steps.length - 1}
         </div>
@@ -124,7 +149,7 @@ export function AssemblyPage() {
             <IonIcon slot='end' icon={chevronUp} />
           </IonButton>
           <IonButton id='pickSpeed' size='large' fill='outline' color='dark'>
-            <span style={{ width: '100%' }}>{speedMultiplier}x</span>
+            <span style={{ width: '100%' }}>Скорость {speedMultiplier}x</span>
             <IonIcon slot='end' icon={chevronUp} />
           </IonButton>
         </div>
@@ -230,8 +255,8 @@ export function AssemblyPage() {
             <IonIcon slot='icon-only' icon={playForward} />
           </IonButton>
         </div>
-        <Footer />
-      </footer>
+        {/* <Footer /> */}
+      </animated.footer>
     </div>
   );
 }

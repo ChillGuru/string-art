@@ -515,7 +515,7 @@ export default function GeneratorPage() {
   }
 
   return (
-    <main className={styles.main}>
+    <>
       <h1>
         Шаг 3<br />
         Начинаем генерацию образца
@@ -574,7 +574,7 @@ export default function GeneratorPage() {
               >
                 Плести
               </IonButton>
-              <IonButton
+              {/* <IonButton
                 type='button'
                 size='large'
                 shape='round'
@@ -583,8 +583,8 @@ export default function GeneratorPage() {
                   downloadStuff();
                 }}
               >
-                <IonIcon icon={download} slot='icon-only' />
-              </IonButton>
+                <IonIcon icon={downloadOutline} slot='icon-only' />
+              </IonButton> */}
             </>
           )}
         </div>
@@ -605,6 +605,6 @@ export default function GeneratorPage() {
           </div>
         )}
       </form>
-    </main>
+    </>
   );
 }

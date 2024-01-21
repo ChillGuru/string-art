@@ -23,6 +23,7 @@
     "@hookform/resolvers": "^3.3.2",
     "@ionic/react": "^7.6.1",
     "@ionic/react-router": "^7.6.1",
+    "@react-spring/web": "^9.7.3",
     "@reduxjs/toolkit": "^1.9.7",
     "@t3-oss/env-core": "^0.7.1",
     "@tanstack/react-query": "^5.7.2",
@@ -42,6 +43,7 @@
   },
   "devDependencies": {
     "@capacitor/cli": "5.5.0",
+    "@react-spring/types": "^9.7.3",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",

@@ -4,7 +4,6 @@ import { Cropper, ReactCropperElement } from 'react-cropper';
 import { Redirect } from 'react-router';
 
 import { BackButton } from '@/components/BackButton';
-import { Layout } from '@/components/Layout';
 import { setCroppedImg } from '@/modules/Generator/slice';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { RootState } from '@/redux/store';
@@ -39,33 +38,31 @@ export function CropPage() {
   }
 
   return (
-    <Layout>
-      <main className={styles.main}>
-        <h1>
-          Шаг 2<br />
-          Редактирование
-        </h1>
-        <Cropper
-          ref={cropper}
-          className={styles.cropper}
-          viewMode={3}
-          dragMode='move'
-          aspectRatio={1}
-          cropBoxMovable={false}
-          cropBoxResizable={false}
-          src={imgUrl}
-          autoCropArea={1}
-          background={false}
-          guides
-        />
-        <h2>Обрежьте изображение по кругу</h2>
-        <div className={styles.btnGroup}>
-          <BackButton backUrl='/app' />
-          <IonButton type='button' size='large' shape='round' onClick={onCrop}>
-            Обрезать
-          </IonButton>
-        </div>
-      </main>
-    </Layout>
+    <>
+      <h1>
+        Шаг 2<br />
+        Редактирование
+      </h1>
+      <Cropper
+        ref={cropper}
+        className={styles.cropper}
+        viewMode={3}
+        dragMode='move'
+        aspectRatio={1}
+        cropBoxMovable={false}
+        cropBoxResizable={false}
+        src={imgUrl}
+        autoCropArea={1}
+        background={false}
+        guides
+      />
+      <h2>Обрежьте изображение по кругу</h2>
+      <div className={styles.btnGroup}>
+        <BackButton backUrl='/app' />
+        <IonButton type='button' size='large' shape='round' onClick={onCrop}>
+          Обрезать
+        </IonButton>
+      </div>
+    </>
   );
 }

@@ -55,12 +55,16 @@ export default function App() {
 
           <Route exact path='/app'>
             <Protected userRole='user'>
-              <UploadPage />
+              <Layout>
+                <UploadPage />
+              </Layout>
             </Protected>
           </Route>
           <Route exact path='/app/crop'>
             <Protected userRole='user'>
-              <CropPage />
+              <Layout>
+                <CropPage />
+              </Layout>
             </Protected>
           </Route>
           <Route exact path='/app/generator'>
