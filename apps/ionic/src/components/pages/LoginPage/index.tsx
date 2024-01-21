@@ -13,7 +13,7 @@ export function LoginPage() {
         <br />
         ИЗ ЛЮБОЙ ФОТОГРАФИИ
       </h1>
-      {/* <Image src={LoginImage} alt='String Art' className={styles.img} /> */}
+      <img src={'public/LoginPageImage.png'} alt='String Art' className={styles.img} />
       <LoginForm />
     </main>
   );

@@ -1,0 +1,54 @@
+@import '@/styles/variables.scss';
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .header {
+        text-align: center;
+        margin-bottom: 107px;
+        color: $base-color;
+    }
+
+    .form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 40px;
+        height: 240px;
+        width: 240px;
+        border: 2px dashed rgba(149, 206, 165, 1);
+        border-radius: 20px;
+
+        .formHeader {
+            font-size: 14px;
+            color: $green-font-color;
+            margin-bottom: 20px;
+        }
+
+        .imgSelectLogo {
+            width: 70px;
+            margin-bottom: 20px;
+        }
+
+        .imgInput {
+            opacity: 0;
+            visibility: hidden;
+            position: absolute;
+        }
+        .imageSelectButton {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            width: 130px;
+            height: 40px;
+            border-radius: 20px;
+            color: white; 
+            background-color: rgba(149, 206, 165, 1);
+            
+        }
+    }
+}

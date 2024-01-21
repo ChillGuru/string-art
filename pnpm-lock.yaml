@@ -98,6 +98,9 @@ importers:
       ui:
         specifier: workspace:*
         version: link:../../packages/ui
+      use-mask-input:
+        specifier: ^3.3.7
+        version: 3.3.7(react-dom@18.2.0)(react@18.2.0)
       util:
         specifier: ^0.12.5
         version: 0.12.5
@@ -11509,6 +11512,17 @@ packages:
       querystringify: 2.2.0
       requires-port: 1.0.0
     dev: true
+
+  /use-mask-input@3.3.7(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-cj3sSnRzF0r1lNBk9NzAgbvQTgCOB7n5wL4tJrXQB2YR9hS4adWCaqEVqJvWHcRqTFb8hekmITQYPOZrDSN/Yg==}
+    engines: {node: '>=16', npm: '>=7'}
+    peerDependencies:
+      react: '>=16.4 || 17 || 18 || 20'
+      react-dom: '>=16.4 || 17 || 18 || 20'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
 
   /use-sync-external-store@1.2.0(react@18.2.0):
     resolution: {integrity: sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==}
