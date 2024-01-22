@@ -3,8 +3,11 @@ import { useForm } from 'react-hook-form';
 
 import { AuthService } from '@/modules/Auth/service';
 import { EncodingService } from '@/modules/Encoding/service';
-import { ExportableLayerData } from '@/modules/Generator/models';
-import { setImg } from '@/modules/Generator/slice';
+import {
+  AssemblyLayerData,
+  ExportableLayerData,
+} from '@/modules/Generator/models';
+import { setFinishedImg, setImg, setLayers } from '@/modules/Generator/slice';
 import { useAppDispatch } from '@/redux/hooks';
 
 export function UploadPage() {
@@ -13,10 +16,41 @@ export function UploadPage() {
 
   const [showAlert] = useIonAlert();
 
-  function showConfirmation() {
+  function showConfirmation(
+    imgFile: File,
+    metadata: Record<string, ExportableLayerData>
+  ) {
     showAlert({
-      header: 'Hi',
-      message: 'В изображении',
+      header: 'Внимание!',
+      subHeader: 'В загруженном изображении замечены данные о шагах сборки',
+      message: `Хотите перейти сразу к плетению?`,
+      buttons: [
+        {
+          text: 'Да',
+          role: 'confirm',
+          handler() {
+            const layers: Record<string, AssemblyLayerData> = {};
+            for (const [key, val] of Object.entries(metadata)) {
+              layers[key] = {
+                ...val,
+                currentStep: 0,
+                layerImgData: new Uint8Array([]),
+              };
+            }
+            dispatch(setLayers(layers));
+            dispatch(setFinishedImg(imgFile));
+            router.push('/app/assembly', 'forward');
+          },
+        },
+        {
+          text: 'Нет',
+          role: 'cancel',
+          handler() {
+            dispatch(setImg(imgFile));
+            router.push('/app/crop', 'forward');
+          },
+        },
+      ],
     });
   }
 
@@ -31,19 +65,18 @@ export function UploadPage() {
       meta = EncodingService.readMetadata<typeof meta>(b64);
       console.log({ meta });
 
-      // showConfirmation();
+      showConfirmation(imgFile, meta);
     } catch (e) {
       console.error('Reading metadata from image failed:');
       console.error(e);
-    }
 
-    dispatch(setImg(imgFile));
-    router.push('/app/crop', 'forward');
+      dispatch(setImg(imgFile));
+      router.push('/app/crop', 'forward');
+    }
   });
 
   return (
     <>
-      {/* <IonButton onClick={showConfirmation}>test</IonButton> */}
       <IonButton
         type='button'
         fill='clear'
