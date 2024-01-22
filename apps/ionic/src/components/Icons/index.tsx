@@ -6,7 +6,7 @@ export function XIcon() {
       viewBox='0 0 24 24'
       strokeWidth={1.5}
       stroke='currentColor'
-      style={{ width: '1.6rem', height: '1.6rem' }}
+      style={{ width: '1rem', height: '1rem' }}
     >
       <path
         strokeLinecap='round'

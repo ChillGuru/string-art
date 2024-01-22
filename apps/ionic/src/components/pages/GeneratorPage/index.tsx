@@ -184,19 +184,19 @@ export default function GeneratorPage() {
               color: 'cyan',
               colorRgb: [130, 255, 255],
               layerImgData: new Uint8Array(cmykAsGrayLayers[0].data),
-              maxLines: formData.maxLines / 2,
+              maxLines: formData.maxLines / 4,
             },
             {
               color: 'magenta',
               colorRgb: [255, 130, 255],
               layerImgData: new Uint8Array(cmykAsGrayLayers[1].data),
-              maxLines: formData.maxLines / 2,
+              maxLines: formData.maxLines / 4,
             },
             {
               color: 'yellow',
               colorRgb: [255, 255, 130],
               layerImgData: new Uint8Array(cmykAsGrayLayers[2].data),
-              maxLines: formData.maxLines / 2,
+              maxLines: formData.maxLines / 4,
             }
           );
 
@@ -572,12 +572,12 @@ export default function GeneratorPage() {
         <div className={styles.btnGroup}>
           <BackButton backUrl='/app/crop' />
           {genState === 'idle' && (
-            <IonButton type='submit' size='large' shape='round'>
+            <IonButton type='submit' shape='round'>
               Начать генерацию
             </IonButton>
           )}
           {genState === 'pending' && (
-            <IonButton type='button' disabled size='large' shape='round'>
+            <IonButton type='button' disabled shape='round'>
               Обработка
               <IonSpinner slot='end' name='dots' />
             </IonButton>
@@ -586,7 +586,6 @@ export default function GeneratorPage() {
             <>
               <IonButton
                 type='button'
-                size='large'
                 shape='round'
                 onClick={() => {
                   router.push('/app/assembly', 'forward');
@@ -596,7 +595,6 @@ export default function GeneratorPage() {
               </IonButton>
               <IonButton
                 type='button'
-                size='large'
                 shape='round'
                 fill='outline'
                 onClick={() => {
@@ -613,13 +611,12 @@ export default function GeneratorPage() {
             <div />
             <IonButton
               type='button'
-              size='large'
               shape='round'
               fill='outline'
               color='dark'
               onClick={resetGenerator}
             >
-              <IonIcon icon={refreshOutline} size='large' slot='end' />
+              <IonIcon icon={refreshOutline} slot='end' />
               Сбросить
             </IonButton>
           </div>

@@ -1,4 +1,4 @@
-import { IonButton, useIonRouter } from '@ionic/react';
+import { IonButton, useIonAlert, useIonRouter } from '@ionic/react';
 import { useForm } from 'react-hook-form';
 
 import { AuthService } from '@/modules/Auth/service';
@@ -11,6 +11,15 @@ export function UploadPage() {
   const dispatch = useAppDispatch();
   const router = useIonRouter();
 
+  const [showAlert] = useIonAlert();
+
+  function showConfirmation() {
+    showAlert({
+      header: 'Hi',
+      message: 'В изображении',
+    });
+  }
+
   const imgForm = useForm<{ image: FileList }>();
 
   const onSubmit = imgForm.handleSubmit(async (data) => {
@@ -20,7 +29,9 @@ export function UploadPage() {
     let meta: Record<string, ExportableLayerData>;
     try {
       meta = EncodingService.readMetadata<typeof meta>(b64);
-      console.log(meta);
+      console.log({ meta });
+
+      // showConfirmation();
     } catch (e) {
       console.error('Reading metadata from image failed:');
       console.error(e);
@@ -32,9 +43,9 @@ export function UploadPage() {
 
   return (
     <>
+      {/* <IonButton onClick={showConfirmation}>test</IonButton> */}
       <IonButton
         type='button'
-        size='large'
         fill='clear'
         onClick={() =>
           AuthService.logOut(() => router.push('/', 'root', 'replace'))
@@ -50,9 +61,7 @@ export function UploadPage() {
           accept='image/*'
           style={{ width: '100%' }}
         />
-        <IonButton size='large' type='submit'>
-          Загрузить картинку
-        </IonButton>
+        <IonButton type='submit'>Загрузить картинку</IonButton>
       </form>
     </>
   );
