@@ -31,6 +31,7 @@ import { setFinishedImg, setLayers } from '@/modules/Generator/slice';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { RootState } from '@/redux/store';
 
+import { EncodingService } from '@/modules/Encoding/service';
 import styles from './styles.module.scss';
 
 const modeCssFilters: Record<GeneratorMode, string> = {
@@ -489,16 +490,31 @@ export default function GeneratorPage() {
     };
   }, []);
 
-  function downloadStuff() {
+  async function downloadStuff() {
     if (!finishedImgUrl) {
       console.error('No image to download');
       return;
     }
-    const anchor = document.createElement('a');
-    anchor.href = finishedImgUrl;
-    anchor.download = 'Образец';
+    const res = await fetch(finishedImgUrl);
+    const b = await res.blob();
 
-    anchor.click();
+    const b64 = await EncodingService.blobToBase64(b);
+    console.log({ b64 });
+    let [pre, data] = b64.split(',');
+    data = atob(data);
+    data += 'test';
+    data = btoa(data);
+    console.log(data);
+    const newB64 = pre + ',' + data;
+    fetch(newB64)
+      .then((r) => r.blob())
+      .then((b) => {
+        const url = URL.createObjectURL(b);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = 'Образец';
+        anchor.click();
+      });
   }
 
   const genState = GeneratorService.getGeneratorState(
@@ -574,7 +590,7 @@ export default function GeneratorPage() {
               >
                 Плести
               </IonButton>
-              {/* <IonButton
+              <IonButton
                 type='button'
                 size='large'
                 shape='round'
@@ -583,8 +599,8 @@ export default function GeneratorPage() {
                   downloadStuff();
                 }}
               >
-                <IonIcon icon={downloadOutline} slot='icon-only' />
-              </IonButton> */}
+                <IonIcon icon={download} slot='icon-only' />
+              </IonButton>
             </>
           )}
         </div>
