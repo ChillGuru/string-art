@@ -181,19 +181,19 @@ export default function GeneratorPage() {
               color: 'cyan',
               colorRgb: [130, 255, 255],
               layerImgData: new Uint8Array(cmykAsGrayLayers[0].data),
-              maxLines: formData.maxLines / 2,
+              maxLines: formData.maxLines / 4,
             },
             {
               color: 'magenta',
               colorRgb: [255, 130, 255],
               layerImgData: new Uint8Array(cmykAsGrayLayers[1].data),
-              maxLines: formData.maxLines / 2,
+              maxLines: formData.maxLines / 4,
             },
             {
               color: 'yellow',
               colorRgb: [255, 255, 130],
               layerImgData: new Uint8Array(cmykAsGrayLayers[2].data),
-              maxLines: formData.maxLines / 2,
+              maxLines: formData.maxLines / 4,
             }
           );
 
