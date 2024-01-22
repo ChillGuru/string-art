@@ -17,8 +17,10 @@ import { Redirect } from 'react-router';
 import { BackButton } from '@/components/BackButton';
 import { LoadingBody } from '@/components/Layout/LoadingBody';
 import { OpenCV } from '@/helpers/openCv';
+import { EncodingService } from '@/modules/Encoding/service';
 import {
   AssemblyLayerData,
+  ExportableLayerData,
   GeneratorForm,
   GeneratorLayerData,
   GeneratorMode,
@@ -31,7 +33,6 @@ import { setFinishedImg, setLayers } from '@/modules/Generator/slice';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { RootState } from '@/redux/store';
 
-import { EncodingService } from '@/modules/Encoding/service';
 import styles from './styles.module.scss';
 
 const modeCssFilters: Record<GeneratorMode, string> = {
@@ -55,6 +56,7 @@ export default function GeneratorPage() {
   const finishedImgUrl = useAppSelector(
     (s: RootState) => s.generator.finishedImgUrl
   );
+  const layers = useAppSelector((s: RootState) => s.generator.layers);
   const dispatch = useAppDispatch();
 
   const [pending, setPending] = useState(false);
@@ -495,26 +497,28 @@ export default function GeneratorPage() {
       console.error('No image to download');
       return;
     }
-    const res = await fetch(finishedImgUrl);
-    const b = await res.blob();
+    const metadata: Record<string, ExportableLayerData> = {};
+    for (const [key, val] of Object.entries(layers)) {
+      metadata[key] = {
+        color: val.color,
+        colorRgb: val.colorRgb,
+        steps: val.steps,
+      };
+    }
+    console.log({ metadata });
 
-    const b64 = await EncodingService.blobToBase64(b);
-    console.log({ b64 });
-    let [pre, data] = b64.split(',');
-    data = atob(data);
-    data += 'test';
-    data = btoa(data);
-    console.log(data);
-    const newB64 = pre + ',' + data;
-    fetch(newB64)
-      .then((r) => r.blob())
-      .then((b) => {
-        const url = URL.createObjectURL(b);
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = 'Образец';
-        anchor.click();
-      });
+    const blob = await EncodingService.urlToBlob(finishedImgUrl);
+    const b64 = await EncodingService.blobToBase64(blob);
+
+    const newB64 = EncodingService.appendMetadata(b64, metadata);
+    const newBlob = await EncodingService.urlToBlob(newB64);
+
+    const url = URL.createObjectURL(newBlob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'Образец';
+    anchor.click();
+    URL.revokeObjectURL(url);
   }
 
   const genState = GeneratorService.getGeneratorState(
