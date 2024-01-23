@@ -38,6 +38,7 @@
     "react-router": "^5.3.4",
     "react-router-dom": "^5.3.4",
     "ui": "workspace:*",
+    "use-mask-input": "^3.3.7",
     "util": "^0.12.5",
     "zod": "^3.22.4"
   },
