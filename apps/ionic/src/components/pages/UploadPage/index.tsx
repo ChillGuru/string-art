@@ -39,6 +39,7 @@ export function UploadPage() {
             type='file'
             id='imgInput'
             accept='image/*'
+            onChange={() => onSubmit()}
             className={styles.imgInput}
             multiple
           />
@@ -52,13 +53,13 @@ export function UploadPage() {
         <div className={styles.navButtons}>
           <IonButton
             type='button'
-            size='large'
             fill='clear'
+            className={styles.backBtn}
             onClick={() =>
             AuthService.logOut(() => router.push('/', 'root', 'replace'))
           }
-        >
-            Выйти
+         >
+          {"<"}
           </IonButton>
         </div>
       </main>

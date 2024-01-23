@@ -50,7 +50,7 @@ export function LoginForm() {
           <input
             type='text'
             placeholder='XXXX-XXXX'
-            {...registerWithMask('code', ['9999-9999'])}
+            {...registerWithMask('code', ['****-****'])}
             className={errorMsg ? styles.formInputError : styles.formInput}
           />
           <button
