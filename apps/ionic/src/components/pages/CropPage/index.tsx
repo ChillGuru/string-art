@@ -39,10 +39,10 @@ export function CropPage() {
 
   return (
     <>
-      <h1>
+      <h4 className={styles.header}>
         Шаг 2<br />
         Редактирование
-      </h1>
+      </h4>
       <Cropper
         ref={cropper}
         className={styles.cropper}
@@ -56,7 +56,7 @@ export function CropPage() {
         background={false}
         guides
       />
-      <h2>Обрежьте изображение по кругу</h2>
+      <span>Обрежьте изображение по кругу</span>
       <div className={styles.btnGroup}>
         <BackButton backUrl='/app' />
         <IonButton type='button' shape='round' onClick={onCrop}>

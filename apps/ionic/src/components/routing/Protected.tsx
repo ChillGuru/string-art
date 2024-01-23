@@ -6,6 +6,7 @@ import { env } from '@/env';
 import { jsonContentHeader } from '@/helpers/jsonContentHeader';
 import { UserRole } from '@/modules/Auth/models';
 import { AuthService } from '@/modules/Auth/service';
+
 import { LoadingBody } from '../Layout/LoadingBody';
 
 export function Protected({
@@ -28,7 +29,11 @@ export function Protected({
   });
 
   if (authCheck.data === undefined) {
-    return <LoadingBody />;
+    return (
+      <main>
+        <LoadingBody />
+      </main>
+    );
   }
 
   if (!authCheck.data) {

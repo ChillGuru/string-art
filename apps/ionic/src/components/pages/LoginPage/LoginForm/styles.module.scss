@@ -1,55 +1,48 @@
-@import '@/styles/variables.scss';
-
 .loginForm {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 10px;
 
   .formHeader,
   .errorMessage {
-    color: $green-font-color;
-    // font-family: Raleway;
+    color: var(--ion-color-primary);
     font-size: 20px;
     font-weight: 500;
-    letter-spacing: 0.12em;
-    margin-bottom: 10px;
   }
 
   .formInner {
     display: flex;
     flex-direction: row;
-    width: 240px;
+    width: 100%;
+    height: fit-content;
     justify-content: space-between;
-    margin-bottom: 10px;
 
     .formInput,
     .formInputError {
-      height: 40px;
-      border: 1px solid $gray-input-color;
+      border: 1px solid var(--ion-color-medium);
       border-radius: 40px;
       text-align: center;
-      font-family: Raleway;
-      font-size: 14px;
       font-weight: 400;
       letter-spacing: 0.12em;
 
       &::placeholder {
-        color: $gray-input-color;
+        color: var(--ion-color-medium);
       }
 
       &:active,
       &:focus {
-        border: 1px solid $green-font-color;
+        border: 1px solid var(--ion-color-primary);
         outline: none;
       }
     }
 
     .formInputError {
-      border: 1px solid red;
+      border: 1px solid var(--ion-color-danger);
 
       &:active,
       &:focus {
-        border: 1px solid red;
+        border: 1px solid var(--ion-color-danger);
         outline: none;
       }
     }
@@ -63,15 +56,15 @@
       line-height: 30px;
       height: 40px;
       width: 50px;
-      background-color: $gray-input-color;
+      background-color: var(--ion-color-medium);
     }
 
     .activeSubmitButton {
-      background-color: $green-font-color;
+      background-color: var(--ion-color-primary);
     }
   }
 
   .errorMessage {
-    color: red;
+    color: var(--ion-color-danger);
   }
 }

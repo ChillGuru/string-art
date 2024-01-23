@@ -95,10 +95,10 @@ export function AssemblyPage() {
       <animated.main className={styles.main} style={{ ...bodySpring }}>
         <div className={styles.headingGroup}>
           <BackButton />
-          <h1>
+          <h4 className={styles.header}>
             Шаг 4<br />
             Плетение
-          </h1>
+          </h4>
         </div>
         <ol className={styles.list}>
           {new Array(5)
