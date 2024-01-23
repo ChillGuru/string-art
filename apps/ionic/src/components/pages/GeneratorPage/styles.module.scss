@@ -6,4 +6,30 @@
   aspect-ratio: 1 / 1;
   overflow: hidden;
   border-radius: 50%;
+  flex: auto 0 0;
+}
+
+.grayscale {
+  filter: grayscale(100%);
+}
+
+.form {
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.radioGroup {
+  font-size: 1.25rem;
+  display: flex;
+  justify-content: space-around;
+}
+
+.btnGroup {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  height: 55px;
 }

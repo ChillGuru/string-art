@@ -23,6 +23,7 @@ import { Suspense, lazy } from 'react';
 import { Layout } from './components/Layout';
 import { LoadingBody } from './components/Layout/LoadingBody';
 import { AdminPage } from './components/pages/AdminPage';
+import { AssemblyPage } from './components/pages/AssemblyPage';
 import { CropPage } from './components/pages/CropPage';
 import { LoginPage } from './components/pages/LoginPage';
 import { UploadPage } from './components/pages/UploadPage';
@@ -54,12 +55,16 @@ export default function App() {
 
           <Route exact path='/app'>
             <Protected userRole='user'>
-              <UploadPage />
+              <Layout>
+                <UploadPage />
+              </Layout>
             </Protected>
           </Route>
           <Route exact path='/app/crop'>
             <Protected userRole='user'>
-              <CropPage />
+              <Layout>
+                <CropPage />
+              </Layout>
             </Protected>
           </Route>
           <Route exact path='/app/generator'>
@@ -69,6 +74,11 @@ export default function App() {
                   <GeneratorPage />
                 </Suspense>
               </Layout>
+            </Protected>
+          </Route>
+          <Route exact path='/app/assembly'>
+            <Protected userRole='user'>
+              <AssemblyPage />
             </Protected>
           </Route>
 

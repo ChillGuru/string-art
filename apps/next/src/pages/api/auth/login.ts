@@ -1,12 +1,12 @@
 import { eq } from 'drizzle-orm';
 import * as jwt from 'jsonwebtoken';
-import { apiRouteHandler, apiRouteOperation } from 'next-rest-framework';
+import { apiRoute, apiRouteOperation } from 'next-rest-framework';
 import { z } from 'zod';
 
 import db from '@/db';
 import { Codes } from '@/db/schema';
 import { envServer } from '@/env/server.mjs';
-import { emptyOptionsOperation, getApiDesc } from '@/helpers/apiFramework';
+import { emptyOptionsOperation } from '@/helpers/apiFramework';
 import { userRoleSchema } from '@/helpers/UserRole';
 
 const loginInputSchema = z.object({ code: z.string() });
@@ -15,10 +15,13 @@ const loginOutputSchema = z.object({
   role: userRoleSchema,
 });
 
-export default apiRouteHandler({
-  OPTIONS: emptyOptionsOperation,
+export default apiRoute({
+  _loginOptions: emptyOptionsOperation,
 
-  POST: apiRouteOperation(getApiDesc({ operationId: 'login', tags: ['auth'] }))
+  login: apiRouteOperation({
+    method: 'POST',
+    openApiOperation: { tags: ['auth'] },
+  })
     .input({
       contentType: 'application/json',
       body: loginInputSchema,
@@ -56,7 +59,7 @@ export default apiRouteHandler({
         .where(eq(Codes.id, foundCode.id));
 
       const token = jwt.sign({ code: foundCode.value }, envServer.JWT_SECRET, {
-        expiresIn: '4h',
+        expiresIn: '8h',
       });
       return res.status(200).json({ token, role: 'user' });
     }),

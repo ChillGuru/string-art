@@ -1,19 +1,21 @@
 .container {
   width: 100%;
-  padding: 1.2rem 0;
+  padding: 6px 0;
   letter-spacing: 0.12em;
   color: var(--ion-color-medium);
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  flex: auto 0 0;
 }
 
 .icons {
-  font-size: 3.6rem;
+  font-size: 2.25rem;
   width: 100%;
   display: flex;
   justify-content: center;
-  gap: 2rem;
+  gap: 20px;
   & > a {
     color: inherit;
     height: auto;

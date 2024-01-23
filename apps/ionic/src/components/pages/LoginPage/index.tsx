@@ -5,7 +5,7 @@ import styles from './styles.module.scss';
 
 export function LoginPage() {
   return (
-    <main className={styles.main}>
+    <>
       <h1 className={styles.header}>
         СОЗДАЙ
         <br />
@@ -15,6 +15,6 @@ export function LoginPage() {
       </h1>
       <img src={'public/LoginPageImage.png'} alt='String Art' className={styles.img} />
       <LoginForm />
-    </main>
+    </>
   );
 }
