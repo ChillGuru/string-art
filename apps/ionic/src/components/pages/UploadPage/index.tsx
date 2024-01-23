@@ -27,28 +27,24 @@ export function UploadPage() {
           ШАГ 1 <br/>
           ЗАГРУЗКА ИЗОБРАЖЕНИЯ
         </div>
-        <form onSubmit={onSubmit} className={styles.form}>
-          <span className={styles.formHeader}>
-            Выберите изображение
-          </span>
-          <img src="public/imgSelectIcon.png"
-            className={styles.imgSelectLogo}
-            alt="imgSelectLogo" />
-          <input
-            {...imgForm.register('image', { required: true })}
-            type='file'
-            id='imgInput'
-            accept='image/*'
-            onChange={() => onSubmit()}
-            className={styles.imgInput}
-            multiple
+        <form onChange={onSubmit} className={styles.form}>
+          <label htmlFor="imgInput" className={styles.imageSelectArea}>
+            <span className={styles.formHeader}>
+              Выберите изображение
+            </span>
+            <img src="public/imgSelectIcon.png"
+              className={styles.imgSelectLogo}
+              alt="imgSelectLogo" />
+            <input
+              {...imgForm.register('image', { required: true })}
+              type='file'
+              id='imgInput'
+              accept='image/*'
+              className={styles.imgInput}
+              multiple
           />
-          <label htmlFor="imgInput" className={styles.imageSelectButton}>
-            <span>Выбрать</span>
+            <div className={styles.galeryBtn}>Галерея</div>
           </label>
-          <IonButton size='large' type='submit'>
-            Загрузить картинку
-          </IonButton>
         </form>
         <div className={styles.navButtons}>
           <IonButton
@@ -59,7 +55,7 @@ export function UploadPage() {
             AuthService.logOut(() => router.push('/', 'root', 'replace'))
           }
          >
-          {"<"}
+            {"<"}
           </IonButton>
         </div>
       </main>

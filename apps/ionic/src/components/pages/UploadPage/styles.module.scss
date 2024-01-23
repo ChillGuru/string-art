@@ -16,21 +16,44 @@
         flex-direction: column;
         align-items: center;
         text-align: center;
-        padding: 40px;
         height: 240px;
         width: 240px;
         border: 2px dashed rgba(149, 206, 165, 1);
         border-radius: 20px;
 
-        .formHeader {
-            font-size: 14px;
-            color: $green-font-color;
-            margin-bottom: 20px;
-        }
+        
+        
+        .imageSelectArea {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            color: white; 
+            padding: 30px 40px;
 
-        .imgSelectLogo {
-            width: 70px;
-            margin-bottom: 20px;
+            .formHeader {
+                font-size: 14px;
+                color: $green-font-color;
+            }
+
+            .imgSelectLogo {
+                width: 70px;
+            }
+
+            .galeryBtn {
+                display: flex;
+                width: 130px;
+                height: 40px !important;
+                border-radius: 18px;
+                background: rgba(149, 206, 165, 1);
+                align-items: center;
+                justify-content: center;
+            }
         }
 
         .imgInput {
@@ -38,19 +61,10 @@
             visibility: hidden;
             position: absolute;
         }
-        .imageSelectButton {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            width: 130px;
-            height: 40px;
-            border-radius: 20px;
-            color: white; 
-            background-color: rgba(149, 206, 165, 1);
             
         }
     }
+
     .navButtons {
         display: flex;
         flex-direction: row;
@@ -69,4 +83,3 @@
     }
     }
     
-}
