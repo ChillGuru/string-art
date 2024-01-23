@@ -2,6 +2,7 @@ import { IonButton, IonIcon, useIonAlert, useIonRouter } from '@ionic/react';
 import { chevronBack } from 'ionicons/icons';
 import { useForm } from 'react-hook-form';
 
+import selectIcon from '@/images/imgSelectIcon.png';
 import { AuthService } from '@/modules/Auth/service';
 import { EncodingService } from '@/modules/Encoding/service';
 import {
@@ -94,7 +95,7 @@ export function UploadPage() {
         <label htmlFor='imgInput' className={styles.imageSelectArea}>
           <span className={styles.formHeader}>Выберите изображение</span>
           <img
-            src='public/imgSelectIcon.png'
+            src={selectIcon}
             className={styles.imgSelectLogo}
             alt='imgSelectLogo'
           />
