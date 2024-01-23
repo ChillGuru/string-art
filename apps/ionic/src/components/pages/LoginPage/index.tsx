@@ -13,7 +13,13 @@ export function LoginPage() {
         <br />
         из любой фотографии
       </h3>
-      <img className={styles.img} src={loginPageImg} alt='String Art' />
+      <img
+        className={styles.img}
+        src={
+          'https://media.discordapp.net/attachments/440794085352275988/1199323392336207932/LoginPageImage.png'
+        }
+        alt='String Art'
+      />
       <LoginForm />
     </>
   );
