@@ -6,6 +6,7 @@ import {
   IonRadio,
   IonRadioGroup,
   IonSpinner,
+  useIonAlert,
   useIonRouter,
 } from '@ionic/react';
 import { download, refreshOutline } from 'ionicons/icons';
@@ -17,6 +18,7 @@ import { Redirect } from 'react-router';
 import { BackButton } from '@/components/BackButton';
 import { LoadingBody } from '@/components/Layout/LoadingBody';
 import { OpenCV } from '@/helpers/openCv';
+import { hideSaveImgAlert } from '@/modules/Alerts/slice';
 import { EncodingService } from '@/modules/Encoding/service';
 import {
   AssemblyLayerData,
@@ -38,7 +40,12 @@ import styles from './styles.module.scss';
 const modeCssFilters: Record<GeneratorMode, string> = {
   bw: styles.grayscale,
   color: '',
-};
+} as const;
+
+const modeTranslations: Record<GeneratorMode, string> = {
+  bw: 'ЧБ',
+  color: 'Цветной',
+} as const;
 
 export default function GeneratorPage() {
   const router = useIonRouter();
@@ -57,6 +64,9 @@ export default function GeneratorPage() {
     (s: RootState) => s.generator.finishedImgUrl
   );
   const layers = useAppSelector((s: RootState) => s.generator.layers);
+  const saveImgAlertSeen = useAppSelector(
+    (s: RootState) => s.alerts.saveImgAlertSeen
+  );
   const dispatch = useAppDispatch();
 
   const [pending, setPending] = useState(false);
@@ -492,33 +502,77 @@ export default function GeneratorPage() {
     };
   }, []);
 
+  const [showAlert] = useIonAlert();
+
   async function downloadStuff() {
     if (!finishedImgUrl) {
       console.error('No image to download');
       return;
     }
-    const metadata: Record<string, ExportableLayerData> = {};
-    for (const [key, val] of Object.entries(layers)) {
-      metadata[key] = {
-        color: val.color,
-        colorRgb: val.colorRgb,
-        steps: val.steps,
-      };
+
+    const download = async () => {
+      const metadata: Record<string, ExportableLayerData> = {};
+      for (const [key, val] of Object.entries(layers)) {
+        metadata[key] = {
+          color: val.color,
+          colorRgb: val.colorRgb,
+          steps: val.steps,
+        };
+      }
+      console.log({ metadata });
+
+      const blob = await EncodingService.urlToBlob(finishedImgUrl);
+      const b64 = await EncodingService.blobToBase64(blob);
+
+      const newB64 = EncodingService.appendMetadata(b64, metadata);
+      const newBlob = await EncodingService.urlToBlob(newB64);
+
+      const url = URL.createObjectURL(newBlob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      const dateStr = Date.now() + '';
+      const id = dateStr.substring(dateStr.length - 6);
+      anchor.download = `Образец ${id}`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    };
+
+    if (saveImgAlertSeen) {
+      return download();
     }
-    console.log({ metadata });
 
-    const blob = await EncodingService.urlToBlob(finishedImgUrl);
-    const b64 = await EncodingService.blobToBase64(blob);
-
-    const newB64 = EncodingService.appendMetadata(b64, metadata);
-    const newBlob = await EncodingService.urlToBlob(newB64);
-
-    const url = URL.createObjectURL(newBlob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = 'Образец';
-    anchor.click();
-    URL.revokeObjectURL(url);
+    showAlert({
+      header: 'Сохранить изображение',
+      subHeader: `Сохранённое изображение 
+            будет содержать в себе шаги плетения`,
+      message: `Импортировать в интерактивную инструкцию 
+            их можно при загрузке сохранённого изображения`,
+      buttons: [
+        {
+          text: 'OK',
+          role: 'confirm',
+          handler(value: boolean[]) {
+            console.log({ value });
+            if (value[0]) {
+              dispatch(hideSaveImgAlert());
+            }
+            download();
+          },
+        },
+        {
+          text: 'Отмена',
+          role: 'cancel',
+        },
+      ],
+      inputs: [
+        {
+          type: 'checkbox',
+          name: 'hide',
+          label: 'Не показывать снова',
+          value: true,
+        },
+      ],
+    });
   }
 
   const genState = GeneratorService.getGeneratorState(
@@ -536,10 +590,10 @@ export default function GeneratorPage() {
 
   return (
     <>
-      <h1>
+      <span>
         Шаг 3<br />
         Начинаем генерацию образца
-      </h1>
+      </span>
       <canvas ref={canvas} className={[styles.imgDisplay].join(' ')} />
       <form onSubmit={onSubmit} className={styles.form}>
         {genState === 'pending' && maxLayer > 0 && (

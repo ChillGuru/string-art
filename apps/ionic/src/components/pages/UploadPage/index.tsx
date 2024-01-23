@@ -21,8 +21,8 @@ export function UploadPage() {
     metadata: Record<string, ExportableLayerData>
   ) {
     showAlert({
-      header: 'Внимание!',
-      subHeader: 'В загруженном изображении замечены данные о шагах сборки',
+      header: 'Импорт шагов',
+      subHeader: 'В загруженном изображении есть данные о шагах плетения',
       message: `Хотите перейти сразу к плетению?`,
       buttons: [
         {
