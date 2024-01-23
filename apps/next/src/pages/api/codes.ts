@@ -1,12 +1,12 @@
 import { eq } from 'drizzle-orm';
-import { apiRouteHandler, apiRouteOperation } from 'next-rest-framework';
+import { apiRoute, apiRouteOperation } from 'next-rest-framework';
 import { codeArrayInputSchema, codeInputSchema, codeSchema } from 'ui';
 import { z } from 'zod';
 
 import { checkAdmin } from '@/auth';
 import db from '@/db';
 import { Codes } from '@/db/schema';
-import { emptyOptionsOperation, getApiDesc } from '@/helpers/apiFramework';
+import { authDescription, emptyOptionsOperation } from '@/helpers/apiFramework';
 
 const selectionWithoutDates = {
   id: Codes.id,
@@ -14,12 +14,16 @@ const selectionWithoutDates = {
   value: Codes.value,
 };
 
-export default apiRouteHandler({
-  OPTIONS: emptyOptionsOperation,
+export default apiRoute({
+  _codesOptions: emptyOptionsOperation,
 
-  GET: apiRouteOperation(
-    getApiDesc({ operationId: 'getCodes', tags: ['codes'] })
-  )
+  getCodes: apiRouteOperation({
+    method: 'GET',
+    openApiOperation: {
+      description: authDescription,
+      tags: ['codes'],
+    },
+  })
     .outputs([
       {
         status: 200,
@@ -36,9 +40,10 @@ export default apiRouteHandler({
       return res.json(codes);
     }),
 
-  POST: apiRouteOperation(
-    getApiDesc({ operationId: 'createCode', tags: ['codes'] })
-  )
+  createCode: apiRouteOperation({
+    method: 'POST',
+    openApiOperation: { description: authDescription, tags: ['codes'] },
+  })
     .input({ contentType: 'application/json', body: codeInputSchema })
     .outputs([
       { status: 200, contentType: 'application/json', schema: codeSchema },
@@ -55,9 +60,10 @@ export default apiRouteHandler({
       return res.json(newCodes[0]);
     }),
 
-  PUT: apiRouteOperation(
-    getApiDesc({ operationId: 'createManyCodes', tags: ['codes'] })
-  )
+  createManyCodes: apiRouteOperation({
+    method: 'PUT',
+    openApiOperation: { description: authDescription, tags: ['codes'] },
+  })
     .input({ contentType: 'application/json', body: codeArrayInputSchema })
     .outputs([
       {
@@ -83,9 +89,10 @@ export default apiRouteHandler({
       return res.json(newCodes);
     }),
 
-  DELETE: apiRouteOperation(
-    getApiDesc({ operationId: 'deleteCode', tags: ['codes'] })
-  )
+  deleteCode: apiRouteOperation({
+    method: 'DELETE',
+    openApiOperation: { description: authDescription, tags: ['codes'] },
+  })
     .input({ contentType: 'application/json', body: codeInputSchema })
     .outputs([
       { status: 200, contentType: 'application/json', schema: codeSchema },

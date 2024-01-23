@@ -1,8 +1,28 @@
 import { NdArray } from '@d4c/numjs';
 
-import { LineResult, Tuple } from './models';
+import { GeneratorMode, LineResult, Tuple } from './models';
+
+const quarterLetters = ['A', 'B', 'C', 'D'];
 
 export const GeneratorService = {
+  getGeneratorState(pending: boolean, finished: boolean) {
+    if (pending) {
+      return 'pending';
+    }
+    return finished ? 'finished' : 'idle';
+  },
+
+  pinToStr(pin: number, maxPins: number): string {
+    const pinsInQuarter = Math.floor(maxPins / 4);
+    const quarterIdx = Math.floor(pin / pinsInQuarter);
+    const pinIdx = (pin % pinsInQuarter) + 1;
+    return quarterLetters[quarterIdx] + pinIdx;
+  },
+
+  pinToQuarter(pin: string): number {
+    return quarterLetters.indexOf(pin[0]);
+  },
+
   getNewObjectUrl<T extends Blob>(current?: string, newFile?: T) {
     if (current) {
       URL.revokeObjectURL(current);
@@ -34,7 +54,7 @@ export const GeneratorService = {
 
   calculateLines(
     pinCount: number,
-    minDistance: number,
+    minInterval: number,
     coords: Tuple[]
   ): LineResult {
     const cacheSize = pinCount ** 2;
@@ -44,7 +64,7 @@ export const GeneratorService = {
     const lineCacheWeight = new Array<number>(cacheSize).fill(1);
 
     for (let cur = 0; cur < pinCount; cur++) {
-      for (let next = cur + minDistance; next < pinCount; next++) {
+      for (let next = cur + minInterval; next < pinCount; next++) {
         const x0 = coords[cur][0],
           y0 = coords[cur][1],
           x1 = coords[next][0],
@@ -116,8 +136,24 @@ export const GeneratorService = {
     return arrAMut;
   },
 
-  makeGrayscale() {
-    throw new Error('Not implemented');
+  /** @deprecated */
+  makeGrayscale(imgPixelsMut: ImageData) {
+    const imgData: number[] = [];
+    for (let y = 0; y < imgPixelsMut.height; y++) {
+      for (let x = 0; x < imgPixelsMut.width; x++) {
+        const idx = x * 4 + y * 4 * imgPixelsMut.width;
+        let avg =
+          imgPixelsMut.data[idx] +
+          imgPixelsMut.data[idx + 1] +
+          imgPixelsMut.data[idx + 2];
+        avg /= 3;
+        imgPixelsMut.data[idx] = avg;
+        imgPixelsMut.data[idx + 1] = avg;
+        imgPixelsMut.data[idx + 2] = avg;
+        imgData.push(avg);
+      }
+    }
+    return imgData;
   },
 
   cropCircle(ctx: CanvasRenderingContext2D, imgSize: number) {
@@ -126,5 +162,48 @@ export const GeneratorService = {
     ctx.arc(imgSize / 2, imgSize / 2, imgSize / 2, 0, Math.PI * 2);
     ctx.closePath();
     ctx.fill();
+  },
+
+  getLayersForMode(mode: GeneratorMode) {
+    switch (mode) {
+      case 'bw': {
+        return { layers: [] };
+      }
+      case 'color': {
+        throw new Error('Invalid mode');
+      }
+      default: {
+        throw new Error('Invalid mode');
+      }
+    }
+  },
+
+  /**
+   * https://maxtables.com/convert/color/rgb-to-cmyk.html
+   */
+  rgb2cmyk(r: number, g: number, b: number): [number, number, number, number] {
+    r /= 255;
+    g /= 255;
+    b /= 255;
+    const k = 1 - Math.max(r, g, b);
+    const c = (1 - r - k) / (1 - k);
+    const m = (1 - g - k) / (1 - k);
+    const y = (1 - b - k) / (1 - k);
+    return [c, m, y, k];
+  },
+
+  /**
+   * https://maxtables.com/convert/color/cmyk-to-rgb.html
+   */
+  cmyk2rgb(
+    c: number,
+    m: number,
+    y: number,
+    k: number
+  ): [number, number, number] {
+    const r = 255 * (1 - c) * (1 - k);
+    const g = 255 * (1 - m) * (1 - k);
+    const b = 255 * (1 - y) * (1 - k);
+    return [r, g, b];
   },
 } as const;

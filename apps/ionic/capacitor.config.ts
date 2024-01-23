@@ -1,16 +1,16 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'ru.stringArt',
+  appId: 'ru.moment.stringArt',
   appName: 'String Art',
   webDir: 'dist',
   server: {
-    hostname: 'localhost',
-    androidScheme: 'http',
+    hostname: 'string-art-io.vercel.app',
+    androidScheme: 'https',
   },
   plugins: {
     CapacitorHttp: {
-      enabled: true,
+      enabled: false,
     },
   },
 };

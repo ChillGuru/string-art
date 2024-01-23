@@ -1,14 +1,21 @@
 @import '@/styles/fonts/fonts.scss';
-@import '@/styles/variables.scss';
 
 .container {
-  @media (max-width: 768px) {
-    font-size: 4rem;
-  }
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0 16px;
+  flex: auto 0 0;
+
+  @media (max-width: 768px) {
+    & .title {
+      font-size: 2.5rem;
+    }
+  }
+}
+
+.title {
+  font-size: 3.75rem;
   font-family: 'Rozovii Chulok';
   color: var(--ion-color-medium);
-  font-size: 6rem;
 }

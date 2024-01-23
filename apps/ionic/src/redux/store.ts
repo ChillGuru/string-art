@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 
+import { alertsSlice } from '@/modules/Alerts/slice';
 import { generatorSlice } from '@/modules/Generator/slice';
 
 export const store = configureStore({
   reducer: {
     generator: generatorSlice.reducer,
+    alerts: alertsSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -13,7 +15,9 @@ export const store = configureStore({
           'generator/setImg',
           'generator/setCroppedImg',
           'generator/setFinishedImg',
+          'generator/setLayers',
         ],
+        ignoredPaths: ['generator.layers'],
       },
     }),
 });

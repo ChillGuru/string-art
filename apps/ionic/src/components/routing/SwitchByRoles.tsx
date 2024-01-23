@@ -6,6 +6,7 @@ import { env } from '@/env';
 import { jsonContentHeader } from '@/helpers/jsonContentHeader';
 import { UserRole } from '@/modules/Auth/models';
 import { AuthService } from '@/modules/Auth/service';
+import { LoadingBody } from '../Layout/LoadingBody';
 
 type Props = {
   onRoles: Record<UserRole, () => ReactNode>;
@@ -30,7 +31,7 @@ export function SwitchByRoles({
   });
 
   if (authCheck.data === undefined) {
-    return 'Loading...';
+    return <LoadingBody />;
   }
 
   if (authCheck.data.role === undefined) {
