@@ -1,85 +1,54 @@
 @import '@/styles/variables.scss';
 
-.container {
+.header {
+  text-align: center;
+  color: var(--ion-color-primary-tint);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  max-width: 500px;
+  max-height: 500px;
+  aspect-ratio: 1 / 1;
+  border: 2px dashed var(--ion-color-primary);
+  border-radius: 20px;
+
+  .imageSelectArea {
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     align-items: center;
+    text-align: center;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    color: white;
+    padding: 20px 40px;
 
-    .header {
-        text-align: center;
-        margin-bottom: 107px;
-        color: $base-color;
+    .formHeader {
     }
 
-    .form {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        height: 240px;
-        width: 240px;
-        border: 2px dashed rgba(149, 206, 165, 1);
-        border-radius: 20px;
-
-        
-        
-        .imageSelectArea {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            text-align: center;
-            cursor: pointer;
-            width: 100%;
-            height: 100%;
-            border-radius: 20px;
-            color: white; 
-            padding: 30px 40px;
-
-            .formHeader {
-                font-size: 14px;
-                color: $green-font-color;
-            }
-
-            .imgSelectLogo {
-                width: 70px;
-            }
-
-            .galeryBtn {
-                display: flex;
-                width: 130px;
-                height: 40px !important;
-                border-radius: 18px;
-                background: rgba(149, 206, 165, 1);
-                align-items: center;
-                justify-content: center;
-            }
-        }
-
-        .imgInput {
-            opacity: 0;
-            visibility: hidden;
-            position: absolute;
-        }
-            
-        }
+    .imgSelectLogo {
+      width: 100px;
+      filter: grayscale(100%);
     }
+  }
 
-    .navButtons {
-        display: flex;
-        flex-direction: row;
-        width: 240px;
-        justify-content: left;
-        margin-top: 25px;
+  .imgInput {
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+  }
+}
 
-        .backBtn {
-        width: 50px;
-        border: 1px solid #95CEA5;
-        border-radius: 18px;
-        font-size: 20px;
-        line-height: 10px;
-        color: #95CEA5;
-        align-self: left;
-    }
-    }
-    
+.btnGroup {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  height: 55px;
+}

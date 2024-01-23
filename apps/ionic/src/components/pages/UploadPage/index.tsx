@@ -1,4 +1,5 @@
-import { IonButton, useIonAlert, useIonRouter } from '@ionic/react';
+import { IonButton, IonIcon, useIonAlert, useIonRouter } from '@ionic/react';
+import { chevronBack } from 'ionicons/icons';
 import { useForm } from 'react-hook-form';
 
 import { AuthService } from '@/modules/Auth/service';
@@ -78,51 +79,50 @@ export function UploadPage() {
   });
 
   return (
-    <Layout>
-      <main className={styles.container}>
-        <span className={styles.header}>
-          ШАГ 1 <br />
-          ЗАГРУЗКА ИЗОБРАЖЕНИЯ
-        </span>
-        <form
-          onSubmit={onSubmit}
-          className={styles.form}
-          onChange={() => {
-            onSubmit();
-          }}
-        >
-          <label htmlFor="imgInput" className={styles.imageSelectArea}>
-            <span className={styles.formHeader}>
-              Выберите изображение
-            </span>
-            <img src="public/imgSelectIcon.png"
-              className={styles.imgSelectLogo}
-              alt="imgSelectLogo" />
-            <input
-              {...imgForm.register('image', { required: true })}
-              type='file'
-              id='imgInput'
-              accept='image/*'
-              className={styles.imgInput}
-              multiple
+    <>
+      <h4 className={styles.header}>
+        Шаг 1 <br />
+        Загрузка изображения
+      </h4>
+      <form
+        onSubmit={onSubmit}
+        className={styles.form}
+        onChange={() => {
+          onSubmit();
+        }}
+      >
+        <label htmlFor='imgInput' className={styles.imageSelectArea}>
+          <span className={styles.formHeader}>Выберите изображение</span>
+          <img
+            src='public/imgSelectIcon.png'
+            className={styles.imgSelectLogo}
+            alt='imgSelectLogo'
           />
-            <div className={styles.galeryBtn}>Галерея</div>
-          </label>
-        </form>
-        <div className={styles.navButtons}>
-          <IonButton
-            type='button'
-            fill='clear'
-            className={styles.backBtn}
-            onClick={() =>
-
-              AuthService.logOut(() => router.push('/', 'root', 'replace'))
-            }
-          >
-            {'<'}
+          <input
+            {...imgForm.register('image', { required: true })}
+            type='file'
+            id='imgInput'
+            accept='image/*'
+            className={styles.imgInput}
+            multiple
+          />
+          <IonButton shape='round' disabled style={{ opacity: '1' }}>
+            Галерея
           </IonButton>
-        </div>
-      </main>
-    </Layout>
+        </label>
+      </form>
+      <div className={styles.btnGroup}>
+        <IonButton
+          type='button'
+          shape='round'
+          fill='outline'
+          onClick={() =>
+            AuthService.logOut(() => router.push('/', 'root', 'replace'))
+          }
+        >
+          <IonIcon slot='icon-only' icon={chevronBack} />
+        </IonButton>
+      </div>
+    </>
   );
 }

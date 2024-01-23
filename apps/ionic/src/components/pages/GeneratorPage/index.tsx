@@ -590,21 +590,21 @@ export default function GeneratorPage() {
 
   return (
     <>
-      <span>
+      <h4 className={styles.header}>
         Шаг 3<br />
         Начинаем генерацию образца
-      </span>
+      </h4>
       <canvas ref={canvas} className={[styles.imgDisplay].join(' ')} />
       <form onSubmit={onSubmit} className={styles.form}>
         {genState === 'pending' && maxLayer > 0 && (
-          <h2>
+          <span>
             Слой: {curLayer + 1} / {maxLayer}
-          </h2>
+          </span>
         )}
-        {genState === 'finished' && <h2>Образец готов!</h2>}
+        {genState === 'finished' && <span>Образец готов!</span>}
         {genState === 'idle' && (
           <>
-            <h2>Настройте параметры образца</h2>
+            <span>Настройте параметры образца</span>
             <IonRadioGroup value={'bw'} className={styles.radioGroup}>
               <IonRadio
                 labelPlacement='end'

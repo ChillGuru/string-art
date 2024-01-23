@@ -1,12 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useIonRouter } from '@ionic/react';
+import { IonButton, IonIcon, useIonRouter } from '@ionic/react';
+import { chevronForward } from 'ionicons/icons';
 import { useForm } from 'react-hook-form';
+import { useHookFormMask } from 'use-mask-input';
 
 import { env } from '@/env';
 import { jsonContentHeader } from '@/helpers/jsonContentHeader';
 import { TLoginForm, UserRole, loginFormSchema } from '@/modules/Auth/models';
 import { AuthService } from '@/modules/Auth/service';
-import { useHookFormMask } from 'use-mask-input';
 
 import styles from './styles.module.scss';
 
@@ -53,16 +54,13 @@ export function LoginForm() {
             {...registerWithMask('code', ['****-****'])}
             className={errorMsg ? styles.formInputError : styles.formInput}
           />
-          <button
+          <IonButton
             type='submit'
-            className={
-              loginForm.formState.isValid
-                ? styles.activeSubmitButton
-                : styles.submitButton
-            }
+            shape='round'
+            disabled={!loginForm.formState.isValid}
           >
-            &gt;
-          </button>
+            <IonIcon slot='icon-only' icon={chevronForward} />
+          </IonButton>
         </div>
       </form>
       {errorMsg && <div className={styles.errorMessage}>{errorMsg}</div>}
