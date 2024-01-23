@@ -59,7 +59,7 @@ export function CropPage() {
       <h2>Обрежьте изображение по кругу</h2>
       <div className={styles.btnGroup}>
         <BackButton backUrl='/app' />
-        <IonButton type='button' size='large' shape='round' onClick={onCrop}>
+        <IonButton type='button' shape='round' onClick={onCrop}>
           Обрезать
         </IonButton>
       </div>
