@@ -10,6 +10,8 @@ import {
 import { setFinishedImg, setImg, setLayers } from '@/modules/Generator/slice';
 import { useAppDispatch } from '@/redux/hooks';
 
+import styles from './styles.module.scss';
+
 export function UploadPage() {
   const dispatch = useAppDispatch();
   const router = useIonRouter();
@@ -76,26 +78,51 @@ export function UploadPage() {
   });
 
   return (
-    <>
-      <IonButton
-        type='button'
-        fill='clear'
-        onClick={() =>
-          AuthService.logOut(() => router.push('/', 'root', 'replace'))
-        }
-      >
-        Выйти
-      </IonButton>
-      <form onSubmit={onSubmit}>
-        {imgForm.formState.isValid ? 'Можно субмиттить' : 'Нельзя субмиттить'}
-        <input
-          {...imgForm.register('image', { required: true })}
-          type='file'
-          accept='image/*'
-          style={{ width: '100%' }}
-        />
-        <IonButton type='submit'>Загрузить картинку</IonButton>
-      </form>
-    </>
+    <Layout>
+      <main className={styles.container}>
+        <span className={styles.header}>
+          ШАГ 1 <br />
+          ЗАГРУЗКА ИЗОБРАЖЕНИЯ
+        </span>
+        <form
+          onSubmit={onSubmit}
+          className={styles.form}
+          onChange={() => {
+            onSubmit();
+          }}
+        >
+          <label htmlFor="imgInput" className={styles.imageSelectArea}>
+            <span className={styles.formHeader}>
+              Выберите изображение
+            </span>
+            <img src="public/imgSelectIcon.png"
+              className={styles.imgSelectLogo}
+              alt="imgSelectLogo" />
+            <input
+              {...imgForm.register('image', { required: true })}
+              type='file'
+              id='imgInput'
+              accept='image/*'
+              className={styles.imgInput}
+              multiple
+          />
+            <div className={styles.galeryBtn}>Галерея</div>
+          </label>
+        </form>
+        <div className={styles.navButtons}>
+          <IonButton
+            type='button'
+            fill='clear'
+            className={styles.backBtn}
+            onClick={() =>
+
+              AuthService.logOut(() => router.push('/', 'root', 'replace'))
+            }
+          >
+            {'<'}
+          </IonButton>
+        </div>
+      </main>
+    </Layout>
   );
 }
