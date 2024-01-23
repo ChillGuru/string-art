@@ -23,11 +23,17 @@ export function UploadPage() {
   return (
     <Layout>
       <main className={styles.container}>
-        <div className={styles.header}>
-          ШАГ 1 <br/>
+        <span className={styles.header}>
+          ШАГ 1 <br />
           ЗАГРУЗКА ИЗОБРАЖЕНИЯ
-        </div>
-        <form onChange={onSubmit} className={styles.form}>
+        </span>
+        <form
+          onSubmit={onSubmit}
+          className={styles.form}
+          onChange={() => {
+            onSubmit();
+          }}
+        >
           <label htmlFor="imgInput" className={styles.imageSelectArea}>
             <span className={styles.formHeader}>
               Выберите изображение
@@ -52,10 +58,11 @@ export function UploadPage() {
             fill='clear'
             className={styles.backBtn}
             onClick={() =>
-            AuthService.logOut(() => router.push('/', 'root', 'replace'))
-          }
-         >
-            {"<"}
+
+              AuthService.logOut(() => router.push('/', 'root', 'replace'))
+            }
+          >
+            {'<'}
           </IonButton>
         </div>
       </main>
