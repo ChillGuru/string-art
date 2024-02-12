@@ -1,19 +1,25 @@
+import loginPageImg from '@/images/LoginPageImage.png';
+
 import { LoginForm } from './LoginForm';
 import styles from './styles.module.scss';
-
-// import Image from 'next/image';
 
 export function LoginPage() {
   return (
     <>
-      <h1 className={styles.header}>
-        СОЗДАЙ
+      <h3 className={styles.header}>
+        Создай
         <br />
-        СВОЮ КАРТИНУ НИТЯМИ
+        свою картину нитями
         <br />
-        ИЗ ЛЮБОЙ ФОТОГРАФИИ
-      </h1>
-      {/* <Image src={LoginImage} alt='String Art' className={styles.img} /> */}
+        из любой фотографии
+      </h3>
+      <img
+        className={styles.img}
+        src={
+          'https://media.discordapp.net/attachments/440794085352275988/1199323392336207932/LoginPageImage.png'
+        }
+        alt='String Art'
+      />
       <LoginForm />
     </>
   );

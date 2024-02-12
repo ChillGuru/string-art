@@ -22,6 +22,12 @@ export type LineResult = {
   lineCacheWeight: number[];
 };
 
+export type ExportableLayerData = {
+  color: string;
+  colorRgb: [number, number, number];
+  steps: string[];
+};
+
 export type AssemblyLayerData = {
   color: string;
   colorRgb: [number, number, number];
@@ -33,8 +39,8 @@ export type AssemblyLayerData = {
 export type GeneratorLayerData = {
   color: string;
   colorRgb: [number, number, number];
-  layerImgData: Uint8Array;
   maxLines: number;
+  layerImgData: Uint8Array;
 };
 
 export const layerColors = ['black', 'cyan', 'yellow', 'magenta'] as const;

@@ -84,7 +84,6 @@ export function AdminPage() {
     <div className={styles.container}>
       <IonButton
         type='button'
-        size='large'
         fill='clear'
         className={styles.logOut}
         onClick={() =>
@@ -111,9 +110,7 @@ export function AdminPage() {
           className={styles.textInput}
         />
         {codeForm.formState.errors.code?.message}
-        <IonButton type='submit' size='large'>
-          Добавить
-        </IonButton>
+        <IonButton type='submit'>Добавить</IonButton>
       </form>
       <form onSubmit={quantityCodes} className={styles.formQuantity}>
         <IonInput

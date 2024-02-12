@@ -13,16 +13,20 @@
   filter: grayscale(100%);
 }
 
+.header {
+  color: var(--ion-color-primary-tint);
+}
+
 .form {
   width: 100%;
 
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 6px;
 }
 
 .radioGroup {
-  font-size: 2rem;
+  font-size: 1.25rem;
   display: flex;
   justify-content: space-around;
 }
