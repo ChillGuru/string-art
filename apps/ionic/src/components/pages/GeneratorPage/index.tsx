@@ -6,9 +6,10 @@ import {
   IonRadio,
   IonRadioGroup,
   IonSpinner,
+  useIonAlert,
   useIonRouter,
 } from '@ionic/react';
-import { downloadOutline, refreshOutline } from 'ionicons/icons';
+import { download, refreshOutline } from 'ionicons/icons';
 import { useOpenCv } from 'opencv-react-ts';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -17,8 +18,11 @@ import { Redirect } from 'react-router';
 import { BackButton } from '@/components/BackButton';
 import { LoadingBody } from '@/components/Layout/LoadingBody';
 import { OpenCV } from '@/helpers/openCv';
+import { hideSaveImgAlert } from '@/modules/Alerts/slice';
+import { EncodingService } from '@/modules/Encoding/service';
 import {
   AssemblyLayerData,
+  ExportableLayerData,
   GeneratorForm,
   GeneratorLayerData,
   GeneratorMode,
@@ -36,7 +40,12 @@ import styles from './styles.module.scss';
 const modeCssFilters: Record<GeneratorMode, string> = {
   bw: styles.grayscale,
   color: '',
-};
+} as const;
+
+const modeTranslations: Record<GeneratorMode, string> = {
+  bw: 'ЧБ',
+  color: 'Цветной',
+} as const;
 
 export default function GeneratorPage() {
   const router = useIonRouter();
@@ -53,6 +62,10 @@ export default function GeneratorPage() {
   );
   const finishedImgUrl = useAppSelector(
     (s: RootState) => s.generator.finishedImgUrl
+  );
+  const layers = useAppSelector((s: RootState) => s.generator.layers);
+  const saveImgAlertSeen = useAppSelector(
+    (s: RootState) => s.alerts.saveImgAlertSeen
   );
   const dispatch = useAppDispatch();
 
@@ -489,6 +502,79 @@ export default function GeneratorPage() {
     };
   }, []);
 
+  const [showAlert] = useIonAlert();
+
+  async function downloadStuff() {
+    if (!finishedImgUrl) {
+      console.error('No image to download');
+      return;
+    }
+
+    const download = async () => {
+      const metadata: Record<string, ExportableLayerData> = {};
+      for (const [key, val] of Object.entries(layers)) {
+        metadata[key] = {
+          color: val.color,
+          colorRgb: val.colorRgb,
+          steps: val.steps,
+        };
+      }
+      console.log({ metadata });
+
+      const blob = await EncodingService.urlToBlob(finishedImgUrl);
+      const b64 = await EncodingService.blobToBase64(blob);
+
+      const newB64 = EncodingService.appendMetadata(b64, metadata);
+      const newBlob = await EncodingService.urlToBlob(newB64);
+
+      const url = URL.createObjectURL(newBlob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      const dateStr = Date.now() + '';
+      const id = dateStr.substring(dateStr.length - 6);
+      anchor.download = `Образец ${id}`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    };
+
+    if (saveImgAlertSeen) {
+      return download();
+    }
+
+    showAlert({
+      header: 'Сохранить изображение',
+      subHeader: `Сохранённое изображение 
+            будет содержать в себе шаги плетения`,
+      message: `Импортировать в интерактивную инструкцию 
+            их можно при загрузке сохранённого изображения`,
+      buttons: [
+        {
+          text: 'OK',
+          role: 'confirm',
+          handler(value: boolean[]) {
+            console.log({ value });
+            if (value[0]) {
+              dispatch(hideSaveImgAlert());
+            }
+            download();
+          },
+        },
+        {
+          text: 'Отмена',
+          role: 'cancel',
+        },
+      ],
+      inputs: [
+        {
+          type: 'checkbox',
+          name: 'hide',
+          label: 'Не показывать снова',
+          value: true,
+        },
+      ],
+    });
+  }
+
   const genState = GeneratorService.getGeneratorState(
     pending,
     !!finishedImgUrl
@@ -504,21 +590,21 @@ export default function GeneratorPage() {
 
   return (
     <>
-      <h1>
+      <h4 className={styles.header}>
         Шаг 3<br />
         Начинаем генерацию образца
-      </h1>
+      </h4>
       <canvas ref={canvas} className={[styles.imgDisplay].join(' ')} />
       <form onSubmit={onSubmit} className={styles.form}>
         {genState === 'pending' && maxLayer > 0 && (
-          <h2>
+          <span>
             Слой: {curLayer + 1} / {maxLayer}
-          </h2>
+          </span>
         )}
-        {genState === 'finished' && <h2>Образец готов!</h2>}
+        {genState === 'finished' && <span>Образец готов!</span>}
         {genState === 'idle' && (
           <>
-            <h2>Настройте параметры образца</h2>
+            <span>Настройте параметры образца</span>
             <IonRadioGroup value={'bw'} className={styles.radioGroup}>
               <IonRadio
                 labelPlacement='end'
@@ -540,12 +626,12 @@ export default function GeneratorPage() {
         <div className={styles.btnGroup}>
           <BackButton backUrl='/app/crop' />
           {genState === 'idle' && (
-            <IonButton type='submit' size='large' shape='round'>
+            <IonButton type='submit' shape='round'>
               Начать генерацию
             </IonButton>
           )}
           {genState === 'pending' && (
-            <IonButton type='button' disabled size='large' shape='round'>
+            <IonButton type='button' disabled shape='round'>
               Обработка
               <IonSpinner slot='end' name='dots' />
             </IonButton>
@@ -554,7 +640,6 @@ export default function GeneratorPage() {
             <>
               <IonButton
                 type='button'
-                size='large'
                 shape='round'
                 onClick={() => {
                   router.push('/app/assembly', 'forward');
@@ -562,15 +647,16 @@ export default function GeneratorPage() {
               >
                 Плести
               </IonButton>
-              {/* <IonButton
+              <IonButton
                 type='button'
-                size='large'
                 shape='round'
                 fill='outline'
-                disabled
+                onClick={() => {
+                  downloadStuff();
+                }}
               >
-                <IonIcon icon={downloadOutline} slot='icon-only' />
-              </IonButton> */}
+                <IonIcon icon={download} slot='icon-only' />
+              </IonButton>
             </>
           )}
         </div>
@@ -579,13 +665,12 @@ export default function GeneratorPage() {
             <div />
             <IonButton
               type='button'
-              size='large'
               shape='round'
               fill='outline'
               color='dark'
               onClick={resetGenerator}
             >
-              <IonIcon icon={refreshOutline} size='large' slot='end' />
+              <IonIcon icon={refreshOutline} slot='end' />
               Сбросить
             </IonButton>
           </div>

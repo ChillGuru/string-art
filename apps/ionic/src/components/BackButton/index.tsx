@@ -10,7 +10,6 @@ export function BackButton({ backUrl }: Props) {
   return (
     <IonButton
       type='button'
-      size='large'
       shape='round'
       fill='outline'
       onClick={() => {
@@ -22,7 +21,7 @@ export function BackButton({ backUrl }: Props) {
         // }
       }}
     >
-      <IonIcon slot='icon-only' size='large' icon={chevronBack} />
+      <IonIcon slot='icon-only' icon={chevronBack} />
     </IonButton>
   );
 }

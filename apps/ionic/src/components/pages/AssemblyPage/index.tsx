@@ -95,10 +95,10 @@ export function AssemblyPage() {
       <animated.main className={styles.main} style={{ ...bodySpring }}>
         <div className={styles.headingGroup}>
           <BackButton />
-          <h1>
+          <h4 className={styles.header}>
             Шаг 4<br />
             Плетение
-          </h1>
+          </h4>
         </div>
         <ol className={styles.list}>
           {new Array(5)
@@ -144,11 +144,11 @@ export function AssemblyPage() {
           Шаг: {curLayer.currentStep} / {curLayer.steps.length - 1}
         </div>
         <div className={styles.footerSelectGroup}>
-          <IonButton id='pickColor' size='large' fill='outline' color='dark'>
+          <IonButton id='pickColor' fill='outline' color='dark'>
             <span style={{ width: '100%' }}>{colorNames[curColor]} Слой</span>
             <IonIcon slot='end' icon={chevronUp} />
           </IonButton>
-          <IonButton id='pickSpeed' size='large' fill='outline' color='dark'>
+          <IonButton id='pickSpeed' fill='outline' color='dark'>
             <span style={{ width: '100%' }}>Скорость {speedMultiplier}x</span>
             <IonIcon slot='end' icon={chevronUp} />
           </IonButton>
@@ -219,7 +219,6 @@ export function AssemblyPage() {
         />
         <div className={styles.footerMainGroup}>
           <IonButton
-            size='large'
             fill='clear'
             shape='round'
             color='dark'
@@ -230,7 +229,6 @@ export function AssemblyPage() {
             <IonIcon slot='icon-only' icon={playBack} />
           </IonButton>
           <IonButton
-            size='large'
             shape='round'
             color='primary'
             onClick={() => {
@@ -244,7 +242,6 @@ export function AssemblyPage() {
             />
           </IonButton>
           <IonButton
-            size='large'
             fill='clear'
             shape='round'
             color='dark'

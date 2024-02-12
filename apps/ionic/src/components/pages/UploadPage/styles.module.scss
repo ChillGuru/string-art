@@ -1,0 +1,54 @@
+@import '@/styles/variables.scss';
+
+.header {
+  text-align: center;
+  color: var(--ion-color-primary-tint);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  max-width: 500px;
+  max-height: 500px;
+  aspect-ratio: 1 / 1;
+  border: 2px dashed var(--ion-color-primary);
+  border-radius: 20px;
+
+  .imageSelectArea {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    color: white;
+    padding: 20px 40px;
+
+    .formHeader {
+    }
+
+    .imgSelectLogo {
+      width: 100px;
+      filter: grayscale(100%);
+    }
+  }
+
+  .imgInput {
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+  }
+}
+
+.btnGroup {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  height: 55px;
+}
