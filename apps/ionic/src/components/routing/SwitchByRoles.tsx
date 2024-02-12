@@ -32,7 +32,11 @@ export function SwitchByRoles({
   });
 
   if (authCheck.data === undefined) {
-    return <LoadingBody />;
+    return (
+      <main className='container'>
+        <LoadingBody />
+      </main>
+    );
   }
 
   if (authCheck.data.role === undefined) {
