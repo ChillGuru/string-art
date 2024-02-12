@@ -30,7 +30,7 @@ export function Protected({
 
   if (authCheck.data === undefined) {
     return (
-      <main>
+      <main className='container'>
         <LoadingBody />
       </main>
     );
