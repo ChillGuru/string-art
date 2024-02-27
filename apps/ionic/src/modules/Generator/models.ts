@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const generatorFormSchema = z.object({
   mode: z.enum(['bw', 'color']).default('bw'),
-  maxLines: z.number().default(2800),
+  maxLines: z.number().default(2000),
   pinCount: z.number().default(240),
   hoopDiameter: z.number().default(0.625),
   lineWeight: z.number().default(20),
