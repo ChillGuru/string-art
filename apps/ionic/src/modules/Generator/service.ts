@@ -2,7 +2,7 @@ import { NdArray } from '@d4c/numjs';
 
 import { GeneratorMode, LineResult, Tuple } from './models';
 
-const quarterLetters = ['A', 'B', 'C', 'D'];
+const quarterLetters = ['C', 'D', 'A', 'B'];
 
 export const GeneratorService = {
   getGeneratorState(pending: boolean, finished: boolean) {
