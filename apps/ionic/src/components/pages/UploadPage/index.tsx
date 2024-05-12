@@ -95,9 +95,7 @@ export function UploadPage() {
         <label htmlFor='imgInput' className={styles.imageSelectArea}>
           <span className={styles.formHeader}>Выберите изображение</span>
           <img
-            src={
-              'https://cdn.discordapp.com/attachments/440794085352275988/1199323392038404176/imgSelectIcon.png'
-            }
+            src={selectIcon}
             className={styles.imgSelectLogo}
             alt='imgSelectLogo'
           />
