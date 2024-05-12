@@ -46,7 +46,9 @@ export default apiRoute({
         if (code !== envServer.ADMIN) {
           return res.status(401).json('Invalid code');
         }
-        const token = jwt.sign({ admin: true }, envServer.JWT_SECRET, {});
+        const token = jwt.sign({ admin: true }, envServer.JWT_SECRET, {
+          expiresIn: '1d',
+        });
         return res.status(200).json({ token, role: 'admin' });
       }
 
@@ -56,11 +58,9 @@ export default apiRoute({
         .set({ timesUsed: foundCode.timesUsed + 1, updatedAt: new Date() })
         .where(eq(Codes.id, foundCode.id));
 
-      const token = jwt.sign(
-        { code: foundCode.value },
-        envServer.JWT_SECRET,
-        {}
-      );
+      const token = jwt.sign({ code: foundCode.value }, envServer.JWT_SECRET, {
+        expiresIn: '4h',
+      });
       return res.status(200).json({ token, role: 'user' });
     }),
 });
